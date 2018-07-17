@@ -28,7 +28,7 @@ const paginate = (items, limit = DEFAULT_PAGE_SIZE, startWith, itemPaginationKey
     startWithIndex = 0;
   }
 
-  let next, nextStart;
+  let nextStart;
   if (startWithIndex + limit < items.length) {
     nextStart = items[startWithIndex + limit];
     if (itemPaginationKey) {

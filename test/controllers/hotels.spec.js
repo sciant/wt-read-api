@@ -123,7 +123,30 @@ describe('Hotels', function () {
         ]),
       });
       await request(server)
-        .get('/hotels?limit=3')
+        .get('/hotels?limit=2')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors, next } = res.body;
+          expect(items.length).to.be.eql(2);
+          expect(errors.length).to.be.eql(2);
+          expect(next).to.be.undefined;
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+
+    it('should not break when requesting much more hotels than actually available', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+          new FakeNiceHotel(),
+          new FakeNiceHotel(),
+        ]),
+      });
+      await request(server)
+        .get('/hotels?limit=200')
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(200)

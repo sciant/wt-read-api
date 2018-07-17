@@ -97,7 +97,7 @@ const fillHotelList = async (path, fields, hotels, limit, startWith) => {
   let realErrors = resolvedItems.filter((i) => i.error);
   let next = nextStart ? `${baseUrl}${path}?limit=${limit}&startWith=${nextStart}` : undefined;
 
-  if (realErrors.length && realItems.length < limit) {
+  if (realErrors.length && realItems.length < limit && nextStart) {
     const nestedResult = await fillHotelList(path, fields, hotels, limit - realItems.length, nextStart);
     realItems = realItems.concat(nestedResult.items);
     realErrors = realErrors.concat(nestedResult.errors);

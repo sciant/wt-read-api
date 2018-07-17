@@ -16,6 +16,45 @@ const {
 
 const web3 = require('web3');
 
+let fakeHotelCounter = 1;
+
+class FakeNiceHotel {
+  constructor () {
+    this.address = `nice-hotel-${fakeHotelCounter++}`;
+  }
+  get dataIndex () {
+    return Promise.resolve({
+      contents: {
+        get descriptionUri () {
+          return Promise.resolve({
+            contents: {
+              name: 'nice hotel',
+            },
+          });
+        },
+      },
+    });
+  }
+}
+      
+class FakeHotelWithBadOnChainData {
+  constructor () {
+    this.address = `fake-hotel-on-chain-${fakeHotelCounter++}`;
+  }
+  get dataIndex () {
+    throw new wtJsLibs.errors.RemoteDataReadError('something');
+  }
+}
+      
+class FakeHotelWithBadOffChainData {
+  constructor () {
+    this.address = `fake-hotel-off-chain-${fakeHotelCounter++}`;
+  }
+  get dataIndex () {
+    throw new wtJsLibs.errors.StoragePointerError('something');
+  }
+}
+
 describe('Hotels', function () {
   let server;
   let wtLibsInstance, indexContract;
@@ -43,15 +82,51 @@ describe('Hotels', function () {
         .get('/hotels')
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
+        .expect(200)
         .expect((res) => {
-          const { items } = res.body;
+          const { items, errors } = res.body;
           expect(items.length).to.be.eql(2);
+          expect(errors.length).to.be.eql(0);
           expect(items[0]).to.have.property('id', hotel0address);
           expect(items[0]).to.have.property('name');
           expect(items[0]).to.have.property('location');
           expect(items[1]).to.have.property('id', hotel1address);
           expect(items[1]).to.have.property('name');
           expect(items[1]).to.have.property('location');
+        });
+    });
+
+    it('should return errors if they happen to individual hotels', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([new FakeNiceHotel(), new FakeHotelWithBadOnChainData()]),
+      });
+      await request(server)
+        .get('/hotels')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors } = res.body;
+          expect(items.length).to.be.eql(1);
+          expect(errors.length).to.be.eql(1);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+
+    xit('should try to fullfill the requested limit of valid hotels', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([new FakeHotelWithBadOnChainData(), new FakeHotelWithBadOffChainData(), new FakeNiceHotel()]),
+      });
+      await request(server)
+        .get('/hotels?limit=1')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors } = res.body;
+          expect(items.length).to.be.eql(1);
+          expect(errors.length).to.be.eql(2);
+          wtJsLibsWrapper.getWTIndex.restore();
         });
     });
 
@@ -77,6 +152,7 @@ describe('Hotels', function () {
         .get(`/hotels?${query}`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
+        .expect(200)
         .expect((res) => {
           const { items } = res.body;
           expect(items.length).to.be.eql(2);
@@ -208,13 +284,8 @@ describe('Hotels', function () {
     });
 
     it('should return 502 when on-chain data is inaccessible', async () => {
-      class FakeHotel {
-        get dataIndex () {
-          throw new wtJsLibs.errors.RemoteDataReadError('something');
-        }
-      }
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
-        getHotel: sinon.stub().resolves(new FakeHotel()),
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOnChainData()),
       });
 
       await request(server)
@@ -228,13 +299,8 @@ describe('Hotels', function () {
     });
 
     it('should return 502 when off-chain data is inaccessible', async () => {
-      class FakeHotel {
-        get dataIndex () {
-          throw new wtJsLibs.errors.StoragePointerError('something');
-        }
-      }
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
-        getHotel: sinon.stub().resolves(new FakeHotel()),
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
       });
 
       await request(server)

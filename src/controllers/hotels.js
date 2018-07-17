@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const wtJsLibs = require('@windingtree/wt-js-libs');
 const { handleApplicationError } = require('../errors');
+const { baseUrl } = require('../config');
 const {
   DEFAULT_HOTELS_FIELDS,
   DEFAULT_HOTEL_FIELDS,
@@ -84,6 +85,37 @@ const calculateFields = (fieldsQuery) => {
   );
 };
 
+const fillHotelList = async (path, fields, hotels, limit, startWith) => {
+  limit = limit ? parseInt(limit, 10) : undefined;
+  let { items, nextStart } = paginate(hotels, limit, startWith, 'address');
+  let rawHotels = [];
+  for (let hotel of items) {
+    rawHotels.push(resolveHotelObject(hotel, fields));
+  }
+  const resolvedItems = await Promise.all(rawHotels);
+  let realItems = resolvedItems.filter((i) => !i.error);
+  let realErrors = resolvedItems.filter((i) => i.error);
+  let next = nextStart ? `${baseUrl}${path}?limit=${limit}&startWith=${nextStart}` : undefined;
+
+  if (realErrors.length && realItems.length < limit) {
+    const nestedResult = await fillHotelList(path, fields, hotels, limit - realItems.length, nextStart);
+    realItems = realItems.concat(nestedResult.items);
+    realErrors = realErrors.concat(nestedResult.errors);
+    if (nestedResult.nextStart) {
+      next = `${baseUrl}${path}?limit=${limit}&startWith=${nestedResult.nextStart}`;
+    } else {
+      next = undefined;
+    }
+  }
+
+  return {
+    items: realItems,
+    errors: realErrors,
+    next,
+    nextStart,
+  };
+};
+
 // Actual controllers
 
 const findAll = async (req, res, next) => {
@@ -93,17 +125,7 @@ const findAll = async (req, res, next) => {
 
   try {
     let hotels = await res.locals.wt.index.getAllHotels();
-    let { items, next } = paginate(req.path, hotels, limit, startWith, 'address');
-    let rawHotels = [];
-    for (let hotel of items) {
-      rawHotels.push(resolveHotelObject(hotel, fields));
-    }
-    const resolvedItems = await Promise.all(rawHotels);
-    res.status(200).json({
-      items: resolvedItems.filter((i) => !i.error),
-      errors: resolvedItems.filter((i) => i.error),
-      next,
-    });
+    res.status(200).json(await fillHotelList(req.path, fields, hotels, limit, startWith));
   } catch (e) {
     if (e instanceof LimitValidationError) {
       return next(handleApplicationError('paginationLimitError', e));

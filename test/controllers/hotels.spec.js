@@ -113,19 +113,52 @@ describe('Hotels', function () {
         });
     });
 
-    xit('should try to fullfill the requested limit of valid hotels', async () => {
+    it('should try to fullfill the requested limit of valid hotels', async () => {
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
-        getAllHotels: sinon.stub().resolves([new FakeHotelWithBadOnChainData(), new FakeHotelWithBadOffChainData(), new FakeNiceHotel()]),
+        getAllHotels: sinon.stub().resolves([
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+          new FakeNiceHotel(),
+          new FakeNiceHotel(),
+        ]),
       });
       await request(server)
-        .get('/hotels?limit=1')
+        .get('/hotels?limit=3')
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(200)
         .expect((res) => {
-          const { items, errors } = res.body;
-          expect(items.length).to.be.eql(1);
+          const { items, errors, next } = res.body;
+          expect(items.length).to.be.eql(2);
           expect(errors.length).to.be.eql(2);
+          expect(next).to.be.undefined;
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+
+    it('should try to fullfill the requested limit of valid hotels and provide valid next', async () => {
+      const nextNiceHotel = new FakeNiceHotel();
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+          new FakeNiceHotel(),
+          new FakeNiceHotel(),
+          new FakeNiceHotel(),
+          new FakeNiceHotel(),
+          nextNiceHotel,
+        ]),
+      });
+      await request(server)
+        .get('/hotels?limit=4')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors, next } = res.body;
+          expect(items.length).to.be.eql(4);
+          expect(errors.length).to.be.eql(2);
+          expect(next).to.be.equal(`http://example.com/hotels?limit=4&startWith=${nextNiceHotel.address}`);
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });

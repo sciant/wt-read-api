@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const wtJsLibs = require('@windingtree/wt-js-libs');
 const { handleApplicationError } = require('../errors');
 const {
   DEFAULT_HOTELS_FIELDS,
@@ -37,12 +38,11 @@ const pickAndResolveFields = (contents, fields) => {
 const resolveHotelObject = async (hotel, fields) => {
   let indexProperties;
   let descriptionProperties;
-  let errorFields;
+  const indexFields = _.intersection(fields, HOTEL_FIELDS);
+  if (indexFields.length) {
+    indexProperties = pickAndResolveFields(hotel, indexFields);
+  }
   try {
-    const indexFields = _.intersection(fields, HOTEL_FIELDS);
-    if (indexFields.length) {
-      indexProperties = pickAndResolveFields(hotel, indexFields);
-    }
     const descriptionFields = _.intersection(fields, DESCRIPTION_FIELDS);
     if (descriptionFields.length) {
       const indexContents = (await hotel.dataIndex).contents;
@@ -50,15 +50,25 @@ const resolveHotelObject = async (hotel, fields) => {
       descriptionProperties = pickAndResolveFields(description, descriptionFields);
     }
   } catch (e) {
-    errorFields = {
-      error: e.message,
+    let message = 'Cannot get hotel data';
+    if (e instanceof wtJsLibs.errors.RemoteDataReadError) {
+      message = 'Cannot access on-chain data, maybe the deployed smart contract is broken';
+    }
+    if (e instanceof wtJsLibs.errors.StoragePointerError) {
+      message = 'Cannot access off-chain data';
+    }
+    return {
+      id: hotel.address,
+      error: message,
+      data: {
+        originalMessage: e.message,
+      },
     };
   }
-  
+
   return mapHotelObjectToResponse({
     ...(await indexProperties),
     ...(await descriptionProperties),
-    ...errorFields,
     id: hotel.address,
   });
 };
@@ -104,14 +114,26 @@ const find = async (req, res, next) => {
   const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
   const { wt } = res.locals;
   const fields = calculateFields(fieldsQuery);
+  let hotel;
   try {
-    let hotel = await wt.index.getHotel(hotelAddress);
-    res.status(200).json(await resolveHotelObject(hotel, fields));
+    hotel = await wt.index.getHotel(hotelAddress);
   } catch (e) {
-    if (e.message.match(/cannot find hotel/i)) {
-      return next(handleApplicationError('hotelNotFound', e));
+    return next(handleApplicationError('hotelNotFound', e));
+  }
+  if (!hotel) {
+    return next(handleApplicationError('hotelNotFound'));
+  }
+
+  try {
+    const resolvedHotel = await resolveHotelObject(hotel, fields);
+    if (resolvedHotel.error) {
+      return next(handleApplicationError('hotelNotAccessible', {
+        message: resolvedHotel.error,
+      }));
     }
-    next(e);
+    return res.status(200).json(resolvedHotel);
+  } catch (e) {
+    return next(handleApplicationError('hotelNotAccessible', e));
   }
 };
 

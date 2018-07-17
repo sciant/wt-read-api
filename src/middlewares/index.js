@@ -9,7 +9,7 @@ const injectWtLibs = async (req, res, next) => {
   const wtLibsInstance = wtJsLibs.getInstance();
   res.locals.wt = {
     instance: wtLibsInstance,
-    index: await wtLibsInstance.getWTIndex(config.wtIndexAddress),
+    index: await wtJsLibs.getWTIndex(),
   };
   next();
 };

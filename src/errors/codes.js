@@ -13,6 +13,10 @@ module.exports = {
     status: 404,
     short: 'Hotel not found',
   },
+  hotelNotAccessible: {
+    status: 502,
+    short: 'Hotel data is not accessible',
+  },
   whiteList: {
     status: 403,
     short: 'IP is not whitelisted.',

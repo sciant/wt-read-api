@@ -1,8 +1,10 @@
 /* eslint-env mocha */
 /* eslint-disable no-unused-expressions */
 const { expect } = require('chai');
+const sinon = require('sinon');
 const request = require('supertest');
-const wtJsLibs = require('../../src/services/wt-js-libs');
+const wtJsLibs = require('@windingtree/wt-js-libs');
+const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
 const {
   deployIndex,
   deployFullHotel,
@@ -21,7 +23,7 @@ describe('Hotels', function () {
   beforeEach(async () => {
     server = require('../../src/index');
     const config = require('../../src/config');
-    wtLibsInstance = wtJsLibs.getInstance();
+    wtLibsInstance = wtJsLibsWrapper.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
   });
@@ -203,6 +205,46 @@ describe('Hotels', function () {
           expect(res.body).to.have.all.keys([...fields, 'id']);
         })
         .expect(200);
+    });
+
+    it('should return 502 when on-chain data is inaccessible', async () => {
+      class FakeHotel {
+        get dataIndex () {
+          throw new wtJsLibs.errors.RemoteDataReadError('something');
+        }
+      }
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotel()),
+      });
+
+      await request(server)
+        .get(`/hotels/${address}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(502)
+        .expect((res) => {
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+
+    it('should return 502 when off-chain data is inaccessible', async () => {
+      class FakeHotel {
+        get dataIndex () {
+          throw new wtJsLibs.errors.StoragePointerError('something');
+        }
+      }
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotel()),
+      });
+
+      await request(server)
+        .get(`/hotels/${address}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(502)
+        .expect((res) => {
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
     });
 
     it('should not return any non-existent fields even if a client asks for them', async () => {

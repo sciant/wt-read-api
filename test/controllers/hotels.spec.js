@@ -159,6 +159,31 @@ describe('Hotels', function () {
         });
     });
 
+    it('should not provide next if all hotels are broken', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOffChainData(),
+        ]),
+      });
+      await request(server)
+        .get('/hotels?limit=2')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors, next } = res.body;
+          expect(items.length).to.be.eql(0);
+          expect(errors.length).to.be.eql(6);
+          expect(next).to.be.undefined;
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+
     it('should try to fullfill the requested limit of valid hotels and provide valid next', async () => {
       const nextNiceHotel = new FakeNiceHotel();
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({

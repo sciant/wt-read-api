@@ -101,7 +101,7 @@ const fillHotelList = async (path, fields, hotels, limit, startWith) => {
     const nestedResult = await fillHotelList(path, fields, hotels, limit - realItems.length, nextStart);
     realItems = realItems.concat(nestedResult.items);
     realErrors = realErrors.concat(nestedResult.errors);
-    if (nestedResult.nextStart) {
+    if (realItems.length && nestedResult.nextStart) {
       next = `${baseUrl}${path}?limit=${limit}&startWith=${nestedResult.nextStart}`;
     } else {
       next = undefined;
@@ -125,7 +125,8 @@ const findAll = async (req, res, next) => {
 
   try {
     let hotels = await res.locals.wt.index.getAllHotels();
-    res.status(200).json(await fillHotelList(req.path, fields, hotels, limit, startWith));
+    const { items, errors, next } = await fillHotelList(req.path, fields, hotels, limit, startWith);
+    res.status(200).json({ items, errors, next });
   } catch (e) {
     if (e instanceof LimitValidationError) {
       return next(handleApplicationError('paginationLimitError', e));

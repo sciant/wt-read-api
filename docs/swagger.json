@@ -36,7 +36,7 @@
           {
             "name": "startWith",
             "in": "query",
-            "description": "The first record that will be included in the result",
+            "description": "The `id` of the first record that will be included in the result",
             "required": false,
             "schema": {
               "$ref": "https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType"
@@ -77,7 +77,7 @@
         ],
         "responses": {
           "200": {
-            "description": "list of hotels",
+            "description": "List of hotels. The API tries to always fulfil the requested limit, so in some cases, the `errors` field might be present.",
             "content": {
               "application/json": {
                 "schema": {
@@ -85,12 +85,20 @@
                   "properties": {
                     "items": {
                       "type": "array",
+                      "description": "List of resolved hotels.",
                       "items": {
                         "$ref": "#/components/schemas/HotelListItem"
                       }
                     },
+                    "errors": {
+                      "type": "array",
+                      "description": "List of checked hotels whose requested data cannot be accessed (i. e. off-chain data cannot be reached).",
+                      "items": {
+                        "$ref": "#/components/schemas/HotelListError"
+                      }
+                    },
                     "next": {
-                      "description": "Uri to next page of records",
+                      "description": "Uri to next page of records. When there's no next page, this is not set.",
                       "$ref": "https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/UriType"
                     }
                   }
@@ -303,6 +311,24 @@
       }
     },
     "schemas": {
+      "HotelListError": {
+        "type": "object",
+        "required": [ "error" ],
+        "properties": {
+          "error": {
+            "description": "Human readable error from the API",
+            "type": "string"
+          },
+          "originalError": {
+            "description": "Text of the original exception that caused this error",
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "description": "Additional data to this error, typically contains `id` that identifies the errorring record."
+          }
+        }
+      },
       "HotelListItem": {
         "allOf": [
           {

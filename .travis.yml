@@ -11,10 +11,17 @@ jobs:
     - npm run coverage
   - stage: deploy
     if: tag IS present
-    script:
-    - npm i -g now
-    - npm run deploy
-    - npm run alias
+    script: echo 'Deploying to NOW'
+    before_deploy: npm i now --no-save
+    deploy:
+      provider: script
+      skip_cleanup: true
+      script:
+      - npm run deploy
+      - npm run alias
+      on:
+        repo: windingtree/wt-read-api
+        tags: true
 env:
   global:
     secure: eQMrwJ4qlU76kI/a9cOoUYZZrDqL9PQ3BpbzQFDBnuPmcRYeMohaQo/JEv3lw3yrIHgNMEXvpwEUbjG0DoumuM7g8kVQCQ2rZZjvVspnTX+xWiF3YuIyb4fQGJL2g6YQDYjSlnYH+e4p3TrrjmQBHLc0VdFe04hkUcp4zCxYdKjFDRUpl2guqJWPMrCv3muh31jgnqlOCnTAI6GCcNAeuIXdfknNQRHdQ2z1YKH3Z24QS9TOiG+fTtlgKeKfOgs7Q3mnPlwcFUjAbpQn5jib490iMT1kQdPE09Jl1bUI2wdejXGTBHwEyr/zMm6I+ZYFld6FILKwadao+KwZRu8Ks/e5LIqM17KHhe2j5eALkEQwl91dUhdQm5aH6eKfUOA8yEfoYZhRjJiMK4QXb6mPDp1LdruErMe0qu+Y7JHPAb2km8HPpLDsOZglD9l+HPJpJ4iOCAgzr+AgawFStzZWEhWD+dlS3nhoFzJOldCVeaV2Bug3Jlr6Jl57i6QKOxKGck/v4Mep3871cfxbhik89YcR3c5YKcBrb3fx88dgjdP5kHzhL6TXgirL9ffBt6wFaZo8Qxlti6+jd+a8r6Lkop0Te899LVR5R7dF2TrkmqMwBtgd7fDaazODlN5bQoFefGyihIUIwQQ2yVjETPeIUdKGhiLM9hbUlCQoPQ/lkEM=

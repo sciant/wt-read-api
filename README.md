@@ -1,5 +1,5 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-# WT NodeJS API
+# WT Read API
 API written in nodejs to fetch information from the Winding Tree platform.
 
 ## Requirements
@@ -8,7 +8,7 @@ API written in nodejs to fetch information from the Winding Tree platform.
 ### Getting stared
 In order to install and run tests, we must:
 ```
-git clone git@github.com:windingtree/wt-nodejs-api.git
+git clone git@github.com:windingtree/wt-read-api.git
 nvm install
 npm install
 npm test

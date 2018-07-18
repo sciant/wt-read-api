@@ -18,8 +18,8 @@ app.use(hotelsRouter);
 // Root handler
 app.get('/', (req, res) => {
   const response = {
-    docs: 'https://github.com/windingtree/wt-nodejs-api/blob/master/README.md',
-    info: 'https://github.com/windingtree/wt-nodejs-api',
+    docs: 'https://github.com/windingtree/wt-read-api/blob/master/README.md',
+    info: 'https://github.com/windingtree/wt-read-api',
     version,
   };
   res.status(200).json(response);

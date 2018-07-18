@@ -135,7 +135,7 @@ fetch(`http://localhost:3000/hotels/0x3...b/images`, {
 Each hotel must have an address, this id updated with a POST message
 
 ```bash
-curl -X POST "http://localhost:3000/hotels/0x0...0/address" \
+curl -X PUT "http://localhost:3000/hotels/0x0...0/address" \
   -H  "accept: application/json" -H  "Content-Type: application/json" \
   -d "{  \"password\": \"secret\",  \"lineOne\": \"Fake street 123\", \
   \"lineTwo\": \"Springfield\",  \"zipCode\": \"C1414\", \
@@ -282,7 +282,7 @@ curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/defaultLifPrice"
 ```
 ```javascript
 fetch(`http://localhost:3000/hotels/0x0..1/units/0x2...1/defaultLifPrice`, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -302,7 +302,7 @@ curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/defaultPrice" \
 ```
 ```javascript
 fetch(`http://localhost:3000/hotels/0x0..1/units/0x2...1/defaultPrice`, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -321,7 +321,7 @@ curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/currencyCode" \
 ```
 ```javaScript
 fetch(`http://localhost:3000/hotels/0x0...1/units/0x2..1/currencyCode`, {
-  method: 'POST',
+  method: 'PUT',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -335,14 +335,14 @@ fetch(`http://localhost:3000/hotels/0x0...1/units/0x2..1/currencyCode`, {
 #### Unit special prices
 Sometimes, we want an special price for our units. This can be done!
 ```bash
-curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/active" \
+curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/specialLifPrice" \
   -H  "accept: application/json" -H  "Content-Type: application/json" \
   -d "{  \"password\": \"secret\",  \"price\": 71, \"days\": 7, \
     \"from\":\"2020-10-10T03:00:00.000Z\"}"
 ```
 ```javascript
 let response = await fetch(`http://localhost:3000/hotels/0x0...1/units/0x2...1/specialLifPrice`, {
-  method: 'POST',
+  method: 'PUT',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -365,7 +365,7 @@ curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/active" \
 ```
 ```javascript
 fetch(`http://localhost:3000/hotels/0x0..1/units/0x2...1/active`, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -381,7 +381,7 @@ fetch(`http://localhost:3000/hotels/0x0..1/units/0x2...1/active`, {
 As users, we want to book a unit
 
 ```bash
-curl -X PUT "http://localhost:3000/hotels/0x0...1/units/0x2...1/book" \
+curl -X POST "http://localhost:3000/hotels/0x0...1/units/0x2...1/book" \
   -H  "accept: application/json" -H  "Content-Type: application/json" \
   -d "{  \"account\": \"0x3...a\",  \"guest\": \"string\",  \"days\": 8, \
    \"from\": \"2020-10-10T03:00:00.000Z\"}"
@@ -437,7 +437,7 @@ curl -X POST "http://localhost:3000/hotels/0x0...1/confirmBooking" \
 ```
 ```javascript
 fetch(`http://localhost:3000/hotels/0x0...1/requests`, {
-  method: 'GET',
+  method: 'POST',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

@@ -39,7 +39,8 @@
     "express-rate-limit": "^2.11.0",
     "lodash": "^4.17.10",
     "swagger-ui-express": "^3.0.10",
-    "winston": "^3.0.0"
+    "winston": "^3.0.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@windingtree/wt-contracts": "^0.2.2",

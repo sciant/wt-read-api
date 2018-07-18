@@ -1,4 +1,3 @@
-const { baseUrl } = require('../config');
 const {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
@@ -7,7 +6,7 @@ const {
 class LimitValidationError extends Error {};
 class MissingStartWithError extends Error {};
 
-const paginate = (basePath, items, limit = DEFAULT_PAGE_SIZE, startWith, itemPaginationKey) => {
+const paginate = (items, limit = DEFAULT_PAGE_SIZE, startWith, itemPaginationKey) => {
   limit = parseInt(limit);
   if (isNaN(limit)) {
     throw new LimitValidationError('Limit is not a number.');
@@ -29,18 +28,18 @@ const paginate = (basePath, items, limit = DEFAULT_PAGE_SIZE, startWith, itemPag
     startWithIndex = 0;
   }
 
-  let next;
+  let nextStart;
   if (startWithIndex + limit < items.length) {
-    let nextStart = items[startWithIndex + limit];
+    nextStart = items[startWithIndex + limit];
     if (itemPaginationKey) {
       nextStart = nextStart[itemPaginationKey];
     }
-    next = `${baseUrl}${basePath}?limit=${limit}&startWith=${nextStart}`;
   }
   
   return {
     items: items.slice(startWithIndex, startWithIndex + limit),
-    next,
+    limit,
+    nextStart,
   };
 };
 

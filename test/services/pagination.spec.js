@@ -10,63 +10,64 @@ const {
 } = require('../../src/constants');
 
 describe('Pagination', function () {
-  let allItems = [],
-    basePath = '/hotels';
+  let allItems = [];
   beforeEach(() => {
     allItems = new Array(100).fill(0).map((a, i) => i);
   });
 
   describe('pagination behaviour', () => {
     it('should return default number of items if not said otherwise', async () => {
-      const { items, next } = paginate(basePath, allItems);
+      const { items, limit, nextStart } = paginate(allItems);
       expect(items).to.be.an('array');
       expect(items.length).to.be.eql(DEFAULT_PAGE_SIZE);
       expect(items[0]).to.be.eql(0);
       expect(items[29]).to.be.eql(29);
-      expect(next).to.be.eql(`http://example.com/hotels?limit=${DEFAULT_PAGE_SIZE}&startWith=30`);
+      expect(nextStart).to.be.eql(30);
+      expect(limit).to.be.eql(DEFAULT_PAGE_SIZE);
     });
 
     it('should start where told to', async () => {
-      const limit = 30;
-      const { items, next } = paginate(basePath, allItems, limit, 35);
+      const desiredLimit = 30;
+      const { items, limit, nextStart } = paginate(allItems, desiredLimit, 35);
       expect(items).to.be.an('array');
       expect(items.length).to.be.eql(limit);
       expect(items[0]).to.be.eql(35);
       expect(items[29]).to.be.eql(64);
-      expect(next).to.be.eql(`http://example.com/hotels?limit=${limit}&startWith=65`);
+      expect(limit).to.be.eql(desiredLimit);
+      expect(nextStart).to.be.eql(65);
     });
 
     it('should return 1 item', async () => {
-      const { items, next } = paginate(basePath, allItems, 1);
+      const { items, nextStart } = paginate(allItems, 1);
       expect(items).to.have.property('length', 1);
       expect(items[0]).to.be.equal(0);
-      expect(next).to.be.eql('http://example.com/hotels?limit=1&startWith=1');
+      expect(nextStart).to.be.eql(1);
     });
 
     it('should not provide next if there are no more records', async () => {
-      let { items, next } = paginate(basePath, allItems, 110);
+      let { items, nextStart } = paginate(allItems, 110);
       expect(items).to.have.property('length', 100);
-      expect(next).to.be.undefined;
-      const result = paginate(basePath, allItems, 100);
+      expect(nextStart).to.be.undefined;
+      const result = paginate(allItems, 100);
       expect(result.items).to.have.property('length', 100);
-      expect(result.next).to.be.undefined;
+      expect(result.nextStart).to.be.undefined;
     });
 
     it('should work with itemPaginationKey', async () => {
-      let { items, next } = paginate(basePath, [{ a: 'a', b: 'b' }, { a: 'c', b: 'd' }], 1, null, 'b');
+      let { items, nextStart } = paginate([{ a: 'a', b: 'b' }, { a: 'c', b: 'd' }], 1, null, 'b');
       expect(items).to.have.property('length', 1);
-      expect(next).to.be.equal('http://example.com/hotels?limit=1&startWith=d');
+      expect(nextStart).to.be.equal('d');
     });
 
     it('should throw if selected startWith is not in items', async () => {
       expect(() => {
-        paginate(basePath, allItems, 30, 'random0index');
+        paginate(allItems, 30, 'random0index');
       }).to.throw(MissingStartWithError, 'Cannot find startWith in items list.');
     });
 
     it('should throw if selected startWith is not in items with itemPaginationKey', async () => {
       expect(() => {
-        paginate(basePath, [{ a: 'a', b: 'b' }, { a: 'c', b: 'd' }], 1, 'x', 'b');
+        paginate([{ a: 'a', b: 'b' }, { a: 'c', b: 'd' }], 1, 'x', 'b');
       }).to.throw(MissingStartWithError, 'Cannot find startWith in items list.');
     });
   });
@@ -75,37 +76,38 @@ describe('Pagination', function () {
     it('should throw if limit is not a number', async () => {
       const limit = 'zerp';
       expect(() => {
-        paginate(basePath, allItems, limit);
+        paginate(allItems, limit);
       }).to.throw(LimitValidationError, 'Limit is not a number.');
     });
 
     it('should throw Limit out of range for a negative limit', async () => {
       const limit = -3;
       expect(() => {
-        paginate(basePath, allItems, limit);
+        paginate(allItems, limit);
       }).to.throw(LimitValidationError, 'Limit is out of range.');
     });
 
     it('should throw Limit out of range for limit=0', async () => {
       const limit = 0;
       expect(() => {
-        paginate(basePath, allItems, limit);
+        paginate(allItems, limit);
       }).to.throw(LimitValidationError, 'Limit is out of range.');
     });
 
     it('should throw Limit out of range for a limit bigger than MAX_PAGE_SIZE', async () => {
       const limit = 1500;
       expect(() => {
-        paginate(basePath, allItems, limit);
+        paginate(allItems, limit);
       }).to.throw(LimitValidationError, 'Limit is out of range.');
     });
 
     it('should not panic when limit is passed as a string', async () => {
-      const { items, next } = paginate(basePath, allItems, '7');
+      const { items, nextStart, limit } = paginate(allItems, '7');
       expect(items).to.have.property('length', 7);
       expect(items[0]).to.be.equal(0);
       expect(items[6]).to.be.equal(6);
-      expect(next).to.be.eql('http://example.com/hotels?limit=7&startWith=7');
+      expect(limit).to.be.eql(7);
+      expect(nextStart).to.be.eql(7);
     });
   });
 });

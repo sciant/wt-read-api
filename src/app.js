@@ -1,16 +1,19 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const app = express();
 const { logger } = require('./config');
 const { version } = require('../package.json');
 
 const { validateIPWhiteList } = require('./middlewares');
 const { hotelsRouter } = require('./routes/hotels');
-
 const { handleApplicationError } = require('./errors');
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(require('../docs/swagger.json')));
+const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+ 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(bodyParser.json());
 app.use('/*', validateIPWhiteList);
 app.use(hotelsRouter);

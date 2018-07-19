@@ -7,8 +7,8 @@
     "lint": "eslint src test",
     "test": "rimraf .nyc_output && WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "now-start": "WT_CONFIG=ropsten node ./src/index.js",
-    "dev": "WT_CONFIG=local node ./src/index.js",
+    "start": "node ./src/index.js",
+    "dev": "WT_CONFIG=local npm start",
     "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --docker --public",
     "alias": "now alias --token=$NOW_TOKEN",
     "dev-net": "./scripts/dev-net.sh"

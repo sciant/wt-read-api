@@ -61,7 +61,7 @@
     "web3": "^1.0.0-beta.34"
   },
   "engines": {
-    "node": "10.3.0"
+    "node": "10.7.0"
   },
   "now": {
     "name": "wt-nodejs-api",

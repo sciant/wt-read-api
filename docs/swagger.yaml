@@ -1,0 +1,279 @@
+openapi: 3.0.0
+servers:
+  - description: Localhost
+    url: 'http://localhost:3000'
+  - description: SwaggerHub API Auto Mocking
+    url: 'https://virtserver.swaggerhub.com/windingtree/api-for-reading/1.0.0'
+info:
+  description: API for reading hotels from WT
+  version: 1.0.1-current-implementation
+  title: WT reading
+paths:
+  /hotels:
+    get:
+      summary: Lists hotels
+      parameters:
+        - name: limit
+          in: query
+          description: maximum number of records to return
+          required: false
+          schema:
+            default: 30
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 300
+        - name: startWith
+          in: query
+          description: The `id` of the first record that will be included in the result
+          required: false
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+        - name: fields
+          in: query
+          description: >
+            List of fields to return with the hotel item. Selecting only `id`
+            field leads to fastest responses as all data are  trieved from
+            WTIndex only.
+          required: false
+          schema:
+            default:
+              - id
+              - name
+              - location
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - description
+                - location
+                - contacts
+                - address
+                - roomTypes
+                - timezone
+                - currency
+                - images
+                - amenities
+                - managerAddress
+                - updatedAt
+      responses:
+        '200':
+          description: >-
+            List of hotels. The API tries to always fulfil the requested limit,
+            so in some cases, the `errors` field might be present.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    description: List of resolved hotels.
+                    items:
+                      $ref: '#/components/schemas/HotelListItem'
+                  errors:
+                    type: array
+                    description: >-
+                      List of checked hotels whose requested data cannot be
+                      accessed (i. e. off-chain data cannot be reached).
+                    items:
+                      $ref: '#/components/schemas/HotelListError'
+                  next:
+                    description: >-
+                      Uri to next page of records. When there's no next page,
+                      this is not set.
+                    $ref: >-
+                      https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/UriType
+        '400':
+          $ref: '#/components/responses/InvalidRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/hotels/{hotelId}':
+    get:
+      summary: Get hotel `id`
+      parameters:
+        - name: hotelId
+          required: true
+          in: path
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+        - name: fields
+          required: false
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              default:
+                - id
+                - location
+                - name
+                - description
+                - contacts
+                - address
+                - currency
+                - images
+                - amenities
+                - updatedAt
+              enum:
+                - id
+                - name
+                - description
+                - location
+                - contacts
+                - address
+                - roomTypes
+                - timezone
+                - currency
+                - images
+                - amenities
+                - managerAddress
+                - updatedAt
+      responses:
+        '200':
+          description: Hotel object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelDetail'
+        '400':
+          $ref: '#/components/responses/InvalidRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/hotels/{hotelId}/roomTypes':
+    get:
+      summary: List room types for hotel `id`
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+      responses:
+        '200':
+          description: Room types list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/RoomTypeResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/hotels/{hotelId}/roomTypes/{roomTypeId}':
+    get:
+      summary: Get room type `id`
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+        - name: roomTypeId
+          in: path
+          required: true
+          description: Id of room type
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType
+      responses:
+        '200':
+          description: Room type with id = `id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomTypeResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    InvalidRequestError:
+      description: The server does not understand to the request (HTTP code 400)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The object was not found (HTTP code 404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error (HTTP code 500)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    HotelListError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          description: Human readable error from the API
+          type: string
+        originalError:
+          description: Text of the original exception that caused this error
+          type: string
+        data:
+          type: object
+          description: >-
+            Additional data to this error, typically contains `id` that
+            identifies the errorring record.
+    HotelListItem:
+      allOf:
+        - $ref: >-
+            https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescriptionBase
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              $ref: >-
+                https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+            managerAddress:
+              $ref: >-
+                https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+    HotelDetail:
+      $ref: >-
+        https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+    RoomTypeResponse:
+      $ref: >-
+        https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RoomType
+    Error:
+      title: Error
+      description: Default schema for errors returned by API.
+      properties:
+        status:
+          type: number
+          description: HTTP status
+        code:
+          type: string
+          description: Computer-readable error. Use this for comparison.
+        short:
+          type: string
+          description: Human-readable error with a short description of the error.
+        long:
+          type: string
+          description: Verbose explanation of what happen.

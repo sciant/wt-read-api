@@ -20,6 +20,8 @@ describe('API', function () {
         expect(res.body).to.have.property('docs');
         expect(res.body).to.have.property('info');
         expect(res.body).to.have.property('version');
+        expect(res.body).to.have.property('config', process.env.WT_CONFIG);
+        expect(res.body).to.have.property('wtIndexAddress', config.wtIndexAddress);
       })
       .expect(200);
   });

@@ -26,7 +26,7 @@ Now we can run our dev server.
 ```bash
 npm run dev
 ```
-When `ETH_NETWORK=local` we run internally a script to deploy WT Index. It is not immediate,
+When using a `local` config, we internally run a script to deploy WT Index. It is not immediate,
 so you might experience some errors in a first few seconds. And that's the reason why
 it is not used in the same manner in tests.
 
@@ -44,6 +44,7 @@ docker build -t windingtree/wt-read-api .
 docker run -p 8080:3000 -d windingtree/wt-read-api
 ```
 - After that you can access the wt-read-api on local port `8080`
+- This deployment is using a Ropsten configuration that can be found in `src/config/ropsten`
 
 ## Examples
 ### Get list of hotels

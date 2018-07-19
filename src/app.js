@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const app = express();
-const { logger } = require('./config');
+const config = require('./config');
 const { version } = require('../package.json');
 
 const { validateIPWhiteList } = require('./middlewares');
@@ -21,9 +21,11 @@ app.use(hotelsRouter);
 // Root handler
 app.get('/', (req, res) => {
   const response = {
-    docs: 'https://github.com/windingtree/wt-read-api/blob/master/README.md',
-    info: 'https://github.com/windingtree/wt-read-api',
+    docs: config.baseUrl + '/docs',
+    info: 'https://github.com/windingtree/wt-read-api/blob/master/README.md',
     version,
+    config: process.env.WT_CONFIG,
+    wtIndexAddress: config.wtIndexAddress,
   };
   res.status(200).json(response);
 });
@@ -40,7 +42,7 @@ app.use('*', (req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  logger.error(err.message);
+  config.logger.error(err.message);
   if (!err.code) {
     // Handle special cases of generic errors
     if (err.message === 'Invalid JSON RPC response: ""') {

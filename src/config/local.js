@@ -40,6 +40,7 @@ module.exports = {
   networkSetup: async (currentConfig) => {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
   },
+  logHttpTraffic: true,
   logger: winston.createLogger({
     level: 'debug',
     transports: [

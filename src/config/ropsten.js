@@ -30,6 +30,7 @@ module.exports = {
     },
   }),
   whiteList: [],
+  logHttpTraffic: true,
   logger: winston.createLogger({
     level: 'debug',
     transports: [

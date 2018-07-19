@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
+const morgan = require('morgan');
 const YAML = require('yamljs');
 const app = express();
 const config = require('./config');
@@ -13,9 +14,33 @@ const { handleApplicationError } = require('./errors');
 
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
  
+// Swagger docs
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Generic middlewares
+
 app.use(bodyParser.json());
+// Logging only when not in test mode
+if (config.logHttpTraffic) {
+  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
+    skip: function (req, res) {
+      return res.statusCode < 400;
+    },
+    stream: process.stderr,
+  }));
+
+  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
+    skip: function (req, res) {
+      return res.statusCode >= 400;
+    },
+    stream: process.stdout,
+  }));
+}
 app.use('/*', validateIPWhiteList);
+
+// Router
+
 app.use(hotelsRouter);
 
 // Root handler

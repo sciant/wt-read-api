@@ -7,7 +7,8 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+ENV WT_CONFIG ropsten
 
-CMD ["npm", "run", "now-start"]
+CMD ["npm", "start"]
 
 EXPOSE 3000

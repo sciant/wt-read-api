@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src test",
-    "test": "rimraf .nyc_output && WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
+    "test": "rimraf .nyc_output && NODE_ENV=test WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "now-start": "WT_CONFIG=ropsten node ./src/index.js",
     "dev": "WT_CONFIG=local node ./src/index.js",
@@ -38,6 +38,7 @@
     "express": "^4.16.3",
     "express-rate-limit": "^2.11.0",
     "lodash": "^4.17.10",
+    "morgan": "^1.9.0",
     "swagger-ui-express": "^3.0.10",
     "winston": "^3.0.0",
     "yamljs": "^0.3.0"

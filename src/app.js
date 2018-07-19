@@ -2,9 +2,10 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
+const morgan = require('morgan');
 const YAML = require('yamljs');
 const app = express();
-const { logger } = require('./config');
+const config = require('./config');
 const { version } = require('../package.json');
 
 const { validateIPWhiteList } = require('./middlewares');
@@ -13,9 +14,33 @@ const { handleApplicationError } = require('./errors');
 
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
  
+// Swagger docs
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Generic middlewares
+
 app.use(bodyParser.json());
+// Logging only when not in test mode
+if (config.logHttpTraffic) {
+  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
+    skip: function (req, res) {
+      return res.statusCode < 400;
+    },
+    stream: process.stderr,
+  }));
+
+  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
+    skip: function (req, res) {
+      return res.statusCode >= 400;
+    },
+    stream: process.stdout,
+  }));
+}
 app.use('/*', validateIPWhiteList);
+
+// Router
+
 app.use(hotelsRouter);
 
 // Root handler
@@ -40,7 +65,7 @@ app.use('*', (req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  logger.error(err.message);
+  config.logger.error(err.message);
   if (!err.code) {
     // Handle special cases of generic errors
     if (err.message === 'Invalid JSON RPC response: ""') {

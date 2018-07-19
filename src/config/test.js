@@ -24,6 +24,7 @@ module.exports = {
   whiteList: [
     '127.0.0.1',
   ],
+  logHttpTraffic: false,
   logger: winston.createLogger({
     level: 'debug',
     transports: [

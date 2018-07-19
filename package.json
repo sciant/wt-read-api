@@ -9,7 +9,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "now-start": "WT_CONFIG=ropsten node ./src/index.js",
     "dev": "WT_CONFIG=local node ./src/index.js",
-    "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --npm --public",
+    "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --docker --public",
     "alias": "now alias --token=$NOW_TOKEN",
     "dev-net": "./scripts/dev-net.sh"
   },
@@ -61,7 +61,7 @@
     "web3": "^1.0.0-beta.34"
   },
   "engines": {
-    "node": "10.3.0"
+    "node": "10.7.0"
   },
   "now": {
     "name": "wt-nodejs-api",

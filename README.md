@@ -3,7 +3,7 @@
 API written in nodejs to fetch information from the Winding Tree platform.
 
 ## Requirements
-- Nodejs 10.3.0
+- Nodejs 10.7.0
 
 ### Getting stared
 In order to install and run tests, we must:
@@ -33,7 +33,17 @@ it is not used in the same manner in tests.
 You can then visit [http://localhost:3000/docs/](http://localhost:3000/docs/) to interact
 with the live server. An [OAS](https://github.com/OAI/OpenAPI-Specification) description is published there.
 
-You cna tweak with the configuration in `src/config/`.
+You can tweak with the configuration in `src/config/`.
+
+### Running node against Ropsten testnet contract
+
+- For our deployment on https://demo-api.windingtree.com, we use a Docker image.
+- You can use it in your local environment by running the following commands:
+```
+docker build -t windingtree/wt-read-api .
+docker run -p 8080:3000 -d windingtree/wt-read-api
+```
+- After that you can access the wt-read-api on local port `8080`
 
 ## Examples
 ### Get list of hotels

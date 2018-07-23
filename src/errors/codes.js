@@ -17,11 +17,6 @@ module.exports = {
     status: 502,
     short: 'Hotel data is not accessible',
   },
-  whiteList: {
-    status: 403,
-    short: 'IP is not whitelisted.',
-    long: 'IP must be in the whitelist. Please contact the administrator.',
-  },
   rateLimit: {
     status: 429,
     short: 'API rate Limit Exceeded',

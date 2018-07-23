@@ -26,6 +26,15 @@ describe('API', function () {
       .expect(200);
   });
 
+  it('should respond with CORS headers', async () => {
+    await request(server)
+      .get('/')
+      .expect((res) => {
+        expect(res.headers).to.have.property('access-control-allow-origin', '*');
+      })
+      .expect(200);
+  });
+
   it('GET /docs', async () => {
     await request(server)
       .get('/docs/')

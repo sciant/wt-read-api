@@ -206,7 +206,7 @@ describe('Hotels', function () {
           const { items, errors, next } = res.body;
           expect(items.length).to.be.eql(4);
           expect(errors.length).to.be.eql(2);
-          expect(next).to.be.equal(`http://example.com/hotels?limit=4&startWith=${nextNiceHotel.address}`);
+          expect(next).to.be.equal(`http://example.com/hotels?limit=4&fields=id,name,location&startWith=${nextNiceHotel.address}`);
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });
@@ -254,7 +254,7 @@ describe('Hotels', function () {
         .expect((res) => {
           const { items, next } = res.body;
           expect(items.length).to.be.eql(1);
-          expect(next).to.be.eql(`http://example.com/hotels?limit=1&startWith=${hotel1address}`);
+          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,name,location&startWith=${hotel1address}`);
 
           items.forEach(hotel => {
             expect(hotel).to.have.property('id');
@@ -277,6 +277,22 @@ describe('Hotels', function () {
             expect(hotel).to.have.property('id');
             expect(hotel).to.have.property('name');
             expect(hotel).to.have.property('location');
+          });
+        });
+    });
+
+    it('should transfer fields from request into next field in response', async () => {
+      await request(server)
+        .get('/hotels?limit=1&fields=id,name')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          const { items, next } = res.body;
+          expect(items.length).to.be.eql(1);
+          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,name&startWith=${hotel1address}`);
+          items.forEach(hotel => {
+            expect(hotel).to.have.property('id');
+            expect(hotel).to.have.property('name');
           });
         });
     });

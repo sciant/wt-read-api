@@ -57,6 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
-# test files
-keys/test.json
-keys/test-updated.json
+# test and key files
+keys/*.json
+test/utils/temp-keys/*
+
+# IDE
+.idea/

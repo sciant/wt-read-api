@@ -1,19 +1,21 @@
 {
-  "name": "wt-nodejs-api",
-  "version": "0.1.1",
+  "name": "wt-read-api",
+  "version": "0.2.2",
   "description": " API to interact with the Winding Tree platform",
   "main": "index.js",
   "scripts": {
-    "eslint": "./node_modules/.bin/eslint src/ tests/",
-    "test": "npm run eslint && scripts/test.sh",
-    "now-start": "npm run dev",
-    "dev": "node ./src/srv/index.js",
-    "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --npm --public",
-    "alias": "now alias --token=$NOW_TOKEN"
+    "lint": "eslint src test",
+    "test": "rimraf .nyc_output && NODE_ENV=test WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "start": "node ./src/index.js",
+    "dev": "WT_CONFIG=local npm start",
+    "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --docker --public",
+    "alias": "now alias --token=$NOW_TOKEN",
+    "dev-net": "./scripts/dev-net.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windingtree/wt-nodejs-api.git"
+    "url": "git+https://github.com/windingtree/wt-read-api.git"
   },
   "keywords": [
     "winding-tree",
@@ -22,35 +24,55 @@
     "javascript"
   ],
   "author": "WT Dev Team <support@winidngtree.com>",
-  "license": "APACHE 2.0",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/windingtree/wt-nodejs-api/issues"
+    "url": "https://github.com/windingtree/wt-read-api/issues"
   },
-  "homepage": "https://github.com/windingtree/wt-nodejs-api#readme",
+  "homepage": "https://github.com/windingtree/wt-read-api#readme",
   "dependencies": {
-    "@windingtree/wt-js-libs": "^0.1.2",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "swagger-ui-express": "^2.0.11",
-    "web3": "1.0.0-beta.26"
+    "@windingtree/off-chain-adapter-http": "^2.0.0",
+    "@windingtree/off-chain-adapter-in-memory": "^3.1.1",
+    "@windingtree/off-chain-adapter-swarm": "^3.1.0",
+    "@windingtree/wt-js-libs": "^0.2.7",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-rate-limit": "^2.11.0",
+    "lodash": "^4.17.10",
+    "morgan": "^1.9.0",
+    "swagger-ui-express": "^3.0.10",
+    "winston": "^3.0.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@windingtree/wt-contracts": "^0.2.2",
     "chai": "^4.1.2",
-    "eslint": "^4.16.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "ethereumjs-testrpc": "3.9.2",
-    "mocha": "^4.0.1",
-    "node-fetch": "^1.7.3"
+    "coveralls": "^3.0.2",
+    "eslint": "^5.1.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "ganache-cli": "^6.1.6",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
+    "sinon": "^6.1.3",
+    "supertest": "^3.1.0",
+    "truffle-contract": "^3.0.6",
+    "web3": "^1.0.0-beta.34"
   },
   "engines": {
-    "node": "8.9.4"
+    "node": ">=10.7.0"
   },
   "now": {
     "name": "wt-nodejs-api",
     "alias": "demo-api.windingtree.com"
+  },
+  "nyc": {
+    "exclude": [
+      "scripts/",
+      "test/",
+      "src/config"
+    ]
   }
 }

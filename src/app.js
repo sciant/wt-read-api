@@ -9,7 +9,6 @@ const app = express();
 const config = require('./config');
 const { version } = require('../package.json');
 
-const { validateIPWhiteList } = require('./middlewares');
 const { hotelsRouter } = require('./routes/hotels');
 const { handleApplicationError } = require('./errors');
 
@@ -39,7 +38,6 @@ if (config.logHttpTraffic) {
     stream: process.stdout,
   }));
 }
-app.use('/*', validateIPWhiteList);
 
 // Router
 

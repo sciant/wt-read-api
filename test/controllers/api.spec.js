@@ -54,21 +54,4 @@ describe('API', function () {
       })
       .expect(404);
   });
-
-  it('GET with not whitelisted ip. Expect #whiteList', async () => {
-    config.whiteList = ['11.22.33.44'];
-    await request(server)
-      .get('/')
-      .expect((res) => {
-        expect(res.body).to.have.property('code', '#whiteList');
-      })
-      .expect(403);
-  });
-
-  it('Allow all ips with empty whiteList', async () => {
-    config.whiteList = [];
-    await request(server)
-      .get('/')
-      .expect(200);
-  });
 });

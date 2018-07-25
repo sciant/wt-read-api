@@ -1,9 +1,9 @@
 openapi: 3.0.0
 servers:
+  - description: Demo deployment
+    url: 'https://demo-api.windingtree.com'
   - description: Localhost
     url: 'http://localhost:3000'
-  - description: SwaggerHub API Auto Mocking
-    url: 'https://virtserver.swaggerhub.com/windingtree/api-for-reading/1.0.0'
 info:
   description: API for reading hotels from WT
   version: 1.0.1-current-implementation

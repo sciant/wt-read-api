@@ -5,6 +5,17 @@ const HttpAdapter = require('@windingtree/off-chain-adapter-http');
 const { deployIndex } = require('../../scripts/local-network');
 
 const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'debug',
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.simple(),
+      handleExceptions: true,
+    }),
+  ],
+});
+
 module.exports = {
   port: 3000,
   baseUrl: 'http://localhost:3000',
@@ -38,15 +49,8 @@ module.exports = {
   }),
   networkSetup: async (currentConfig) => {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
+    logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
   logHttpTraffic: true,
-  logger: winston.createLogger({
-    level: 'debug',
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.simple(),
-        handleExceptions: true,
-      }),
-    ],
-  }),
+  logger: logger
 };

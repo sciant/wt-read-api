@@ -65,7 +65,7 @@
     "node": ">=10.7.0"
   },
   "now": {
-    "name": "wt-nodejs-api",
+    "name": "wt-read-api",
     "alias": "demo-api.windingtree.com"
   },
   "nyc": {

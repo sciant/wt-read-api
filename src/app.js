@@ -7,10 +7,9 @@ const cors = require('cors');
 const YAML = require('yamljs');
 const app = express();
 const config = require('./config');
+const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { version } = require('../package.json');
-
 const { hotelsRouter } = require('./routes/hotels');
-const { handleApplicationError } = require('./errors');
 
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
  
@@ -39,10 +38,6 @@ if (config.logHttpTraffic) {
   }));
 }
 
-// Router
-
-app.use(hotelsRouter);
-
 // Root handler
 app.get('/', (req, res) => {
   const response = {
@@ -55,33 +50,22 @@ app.get('/', (req, res) => {
   res.status(200).json(response);
 });
 
+// Router
+app.use(hotelsRouter);
+
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    status: 404,
-    code: '#notFound',
-    short: 'Page not found',
-    long: 'This endpoint does not exist',
-  });
+app.use('*', (req, res, next) => {
+  next(new Http404Error());
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-  config.logger.error(err.message);
-  if (!err.code) {
-    // Handle special cases of generic errors
-    if (err.message === 'Invalid JSON RPC response: ""') {
-      err = handleApplicationError('unreachableChain', err);
-    } else {
-      err = handleApplicationError('genericError', err);
-    }
+  if (!(err instanceof HttpError)) {
+    config.logger.error(err.stack);
+    err = new HttpInternalError();
   }
-  res.status(err.status).json({
-    status: err.status,
-    code: err.code,
-    short: err.short,
-    long: err.long,
-  });
+
+  res.status(err.status).json(err.toPlainObject());
 });
 
 module.exports = {

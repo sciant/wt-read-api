@@ -1,6 +1,6 @@
 const winston = require('winston');
 
-const env = process.env.WT_CONFIG || 'local';
+const env = process.env.WT_CONFIG || 'dev';
 
 module.exports = Object.assign({
   logger: winston.createLogger({

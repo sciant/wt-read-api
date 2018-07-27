@@ -1,7 +1,11 @@
 const _ = require('lodash');
 const wtJsLibs = require('@windingtree/wt-js-libs');
-const { handleApplicationError } = require('../errors');
 const { baseUrl } = require('../config');
+const {
+  HttpValidationError,
+  Http404Error,
+  HttpBadGatewayError,
+} = require('../errors');
 const {
   DEFAULT_HOTELS_FIELDS,
   DEFAULT_HOTEL_FIELDS,
@@ -128,10 +132,10 @@ const findAll = async (req, res, next) => {
     res.status(200).json({ items, errors, next });
   } catch (e) {
     if (e instanceof LimitValidationError) {
-      return next(handleApplicationError('paginationLimitError', e));
+      return next(new HttpValidationError('paginationLimitError', 'Limit must be a natural number greater than 0.'));
     }
     if (e instanceof MissingStartWithError) {
-      return next(handleApplicationError('paginationStartWithError', e));
+      return next(new Http404Error('paginationStartWithError', 'Cannot find startWith in hotel collection.'));
     }
     next(e);
   }
@@ -146,19 +150,17 @@ const find = async (req, res, next) => {
   try {
     hotel = await wt.index.getHotel(hotelAddress);
   } catch (e) {
-    return next(handleApplicationError('hotelNotFound', e));
+    return next(new Http404Error('hotelNotFound', 'Hotel not found'));
   }
 
   try {
     const resolvedHotel = await resolveHotelObject(hotel, fields);
     if (resolvedHotel.error) {
-      return next(handleApplicationError('hotelNotAccessible', {
-        message: resolvedHotel.error,
-      }));
+      return next(new HttpBadGatewayError('hotelNotAccessible', resolvedHotel.error, 'Hotel data is not accessible.'));
     }
     return res.status(200).json(resolvedHotel);
   } catch (e) {
-    return next(handleApplicationError('hotelNotAccessible', e));
+    return next(new HttpBadGatewayError('hotelNotAccessible', e.message, 'Hotel data is not accessible.'));
   }
 };
 

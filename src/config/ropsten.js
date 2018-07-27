@@ -1,7 +1,6 @@
 const WtJsLibs = require('@windingtree/wt-js-libs');
 const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const HttpAdapter = require('@windingtree/off-chain-adapter-http');
-const winston = require('winston');
 
 module.exports = {
   wtIndexAddress: '0x407f550023eb6ad8a4797844489e17c5ced17e06',
@@ -28,14 +27,5 @@ module.exports = {
         },
       },
     },
-  }),
-  logHttpTraffic: true,
-  logger: winston.createLogger({
-    level: 'debug',
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.simple(),
-      }),
-    ],
   }),
 };

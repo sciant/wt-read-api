@@ -1,4 +1,4 @@
-const { handleApplicationError } = require('../errors');
+const { Http404Error } = require('../errors');
 
 const findAll = async (req, res, next) => {
   let { hotelAddress } = req.params;
@@ -27,7 +27,7 @@ const find = async (req, res, next) => {
     const description = (await indexRow.descriptionUri).contents;
     let roomType = (await description.roomTypes)[roomTypeId];
     if (!roomType) {
-      return next(handleApplicationError('roomTypeNotFound'));
+      return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
     }
     roomType.id = roomTypeId;
     res.status(200).json(roomType);

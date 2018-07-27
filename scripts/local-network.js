@@ -1,9 +1,8 @@
 const TruffleContract = require('truffle-contract');
 const Web3 = require('web3');
 const WTIndexContract = require('@windingtree/wt-contracts/build/contracts/WTIndex');
-const config = require('../src/config');
 
-const provider = new Web3.providers.HttpProvider(config.web3Provider);
+const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
 
 // dirty hack for web3@1.0.0 support for localhost testrpc, see

@@ -1,14 +1,40 @@
 openapi: 3.0.0
 servers:
+  - description: Demo deployment
+    url: 'https://demo-api.windingtree.com'
   - description: Localhost
     url: 'http://localhost:3000'
-  - description: SwaggerHub API Auto Mocking
-    url: 'https://virtserver.swaggerhub.com/windingtree/api-for-reading/1.0.0'
 info:
   description: API for reading hotels from WT
   version: 1.0.1-current-implementation
   title: WT reading
 paths:
+  /:
+    get:
+      summary: API info
+      responses:
+        '200':
+          description: Basic information about this API instance.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  docs:
+                    type: string
+                    description: Link to the API documentation.
+                  info:
+                    type: string
+                    description: Link to more information about the API.
+                  version:
+                    type: string
+                    description: Deployed API version number.
+                  config:
+                    type: string
+                    description: Which config is the API using. It might be useful to name configs after used ETH networks.
+                  wtIndexAddress:
+                    type: string
+                    description: Ethereum address of used Winding Tree index.
   /hotels:
     get:
       summary: Lists hotels

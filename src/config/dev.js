@@ -6,16 +6,6 @@ const { deployIndex } = require('../../scripts/local-network');
 
 const winston = require('winston');
 
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple(),
-      handleExceptions: true,
-    }),
-  ],
-});
-
 module.exports = {
   port: 3000,
   baseUrl: 'http://localhost:3000',
@@ -49,8 +39,16 @@ module.exports = {
   }),
   networkSetup: async (currentConfig) => {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
-    logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
+    currentConfig.logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
   logHttpTraffic: true,
-  logger: logger,
+  logger: winston.createLogger({
+    level: 'debug',
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+        handleExceptions: true,
+      }),
+    ],
+  }),
 };

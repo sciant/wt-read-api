@@ -8,7 +8,7 @@
     "test": "rimraf .nyc_output && NODE_ENV=test WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "start": "node ./src/index.js",
-    "dev": "WT_CONFIG=local npm start",
+    "dev": "WT_CONFIG=dev npm start",
     "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --docker --public",
     "alias": "now alias --token=$NOW_TOKEN",
     "dev-net": "./scripts/dev-net.sh"
@@ -37,7 +37,6 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
-    "express-rate-limit": "^2.11.0",
     "lodash": "^4.17.10",
     "morgan": "^1.9.0",
     "swagger-ui-express": "^3.0.10",
@@ -66,7 +65,7 @@
     "node": ">=10.7.0"
   },
   "now": {
-    "name": "wt-nodejs-api",
+    "name": "wt-read-api",
     "alias": "demo-api.windingtree.com"
   },
   "nyc": {

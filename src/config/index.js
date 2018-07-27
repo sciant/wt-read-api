@@ -1,4 +1,14 @@
-const env = process.env.WT_CONFIG || 'local';
-const envConfig = require(`./${env}`);
+const winston = require('winston');
 
-module.exports = Object.assign({}, envConfig);
+const env = process.env.WT_CONFIG || 'dev';
+
+module.exports = Object.assign({
+  logger: winston.createLogger({
+    level: 'warn',
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+      }),
+    ],
+  }),
+}, require(`./${env}`));

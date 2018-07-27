@@ -1,6 +1,5 @@
 const WtJsLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
-const winston = require('winston');
 
 module.exports = {
   port: 8100,
@@ -22,12 +21,4 @@ module.exports = {
     },
   }),
   logHttpTraffic: false,
-  logger: winston.createLogger({
-    level: 'debug',
-    transports: [
-      new winston.transports.Console({
-        silent: true,
-      }),
-    ],
-  }),
 };

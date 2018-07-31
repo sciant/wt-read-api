@@ -16,7 +16,7 @@ module.exports = {
     },
     offChainDataOptions: {
       adapters: {
-        json: {
+        'in-memory': {
           create: (options) => {
             return new InMemoryAdapter(options);
           },

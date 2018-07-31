@@ -23,7 +23,7 @@ describe('Room types', function () {
     wtLibsInstance = wtJsLibs.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
-    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('json'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN));
+    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN));
   });
 
   afterEach(() => {

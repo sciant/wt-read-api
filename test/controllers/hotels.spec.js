@@ -35,6 +35,19 @@ class FakeNiceHotel {
       },
     });
   }
+  toPlainObject () {
+    return {
+      dataUri: {
+        contents: {
+          descriptionUri: {
+            contents: {
+              name: 'nice hotel',
+            },
+          },
+        },
+      },
+    };
+  }
 }
       
 class FakeHotelWithBadOnChainData {
@@ -44,6 +57,9 @@ class FakeHotelWithBadOnChainData {
   get dataIndex () {
     throw new wtJsLibs.errors.RemoteDataReadError('something');
   }
+  toPlainObject () {
+    throw new wtJsLibs.errors.RemoteDataReadError('something');
+  }
 }
       
 class FakeHotelWithBadOffChainData {
@@ -51,6 +67,9 @@ class FakeHotelWithBadOffChainData {
     this.address = `fake-hotel-off-chain-${fakeHotelCounter++}`;
   }
   get dataIndex () {
+    throw new wtJsLibs.errors.StoragePointerError('something');
+  }
+  toPlainObject () {
     throw new wtJsLibs.errors.StoragePointerError('something');
   }
 }
@@ -206,7 +225,7 @@ describe('Hotels', function () {
           const { items, errors, next } = res.body;
           expect(items.length).to.be.eql(4);
           expect(errors.length).to.be.eql(2);
-          expect(next).to.be.equal(`http://example.com/hotels?limit=4&fields=id,name,location&startWith=${nextNiceHotel.address}`);
+          expect(next).to.be.equal(`http://example.com/hotels?limit=4&fields=id,location,name&startWith=${nextNiceHotel.address}`);
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });
@@ -254,7 +273,7 @@ describe('Hotels', function () {
         .expect((res) => {
           const { items, next } = res.body;
           expect(items.length).to.be.eql(1);
-          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,name,location&startWith=${hotel1address}`);
+          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,location,name&startWith=${hotel1address}`);
 
           items.forEach(hotel => {
             expect(hotel).to.have.property('id');
@@ -376,6 +395,49 @@ describe('Hotels', function () {
         .set('accept', 'application/json')
         .expect((res) => {
           expect(res.body).to.have.all.keys([...fields, 'id']);
+        })
+        .expect(200);
+    });
+
+    it('should return all the nested fields that a client asks for', async () => {
+      const fields = ['managerAddress', 'name', 'timezone', 'address.postalCode', 'address.line1'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id');
+          expect(res.body).to.have.property('managerAddress');
+          expect(res.body).to.have.property('name');
+          expect(res.body).to.have.property('timezone');
+          expect(res.body).to.have.property('address');
+          expect(res.body.address).to.have.property('postalCode');
+          expect(res.body.address).to.have.property('line1');
+          expect(res.body.address.country).to.be.undefined;
+        })
+        .expect(200);
+    });
+
+    it('should return all nested fields even from an object of objects', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'roomTypes.description'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'id']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.have.property('description');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
         })
         .expect(200);
     });

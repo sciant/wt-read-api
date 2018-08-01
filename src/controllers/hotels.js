@@ -24,9 +24,10 @@ const {
 // Helpers
 const flattenObject = (contents, fields) => {
   let currentFieldDef = {},
-    currentLevelName, remainingPath,
+    currentLevelName,
     result = {};
   for (let field of fields) {
+    let remainingPath;
     if (field.indexOf('.') === -1) {
       currentLevelName = field;
     } else {
@@ -78,9 +79,9 @@ const resolveHotelObject = async (hotel, fields) => {
   let plainHotel;
   try {
     if (fields.length) {
-      plainHotel = hotel.toPlainObject(fields);
+      plainHotel = await hotel.toPlainObject(fields);
     } else {
-      plainHotel = hotel.toPlainObject();
+      plainHotel = await hotel.toPlainObject();
     }
   } catch (e) {
     let message = 'Cannot get hotel data';
@@ -98,10 +99,10 @@ const resolveHotelObject = async (hotel, fields) => {
       },
     };
   }
-  const flattenedOffChainData = (flattenObject((await plainHotel).dataUri.contents, fields));
+  const flattenedOffChainData = (flattenObject(plainHotel.dataUri.contents, fields));
   return mapHotelObjectToResponse({
     ...flattenedOffChainData.descriptionUri,
-    ...(flattenObject(await plainHotel, fields)),
+    ...(flattenObject(plainHotel, fields)),
     id: hotel.address,
   });
 };

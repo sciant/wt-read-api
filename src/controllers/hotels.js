@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const wtJsLibs = require('@windingtree/wt-js-libs');
 const { baseUrl } = require('../config');
 const {
@@ -7,11 +6,10 @@ const {
   HttpBadGatewayError,
 } = require('../errors');
 const {
-  DEFAULT_HOTELS_FIELDS,
-  DEFAULT_HOTEL_FIELDS,
-  OBLIGATORY_FIELDS,
   HOTEL_FIELDS,
   DESCRIPTION_FIELDS,
+  DEFAULT_HOTELS_FIELDS,
+  DEFAULT_HOTEL_FIELDS,
 } = require('../constants');
 const {
   mapHotelObjectToResponse,
@@ -24,37 +22,65 @@ const {
 } = require('../services/pagination');
 
 // Helpers
+const flattenObject = (contents, fields) => {
+  let currentFieldDef = {},
+    currentLevelName, remainingPath,
+    result = {};
+  for (let field of fields) {
+    if (field.indexOf('.') === -1) {
+      currentLevelName = field;
+    } else {
+      currentLevelName = field.substring(0, field.indexOf('.'));
+      remainingPath = field.substring(field.indexOf('.') + 1);
+    }
+    if (remainingPath) {
+      if (!currentFieldDef[currentLevelName]) {
+        currentFieldDef[currentLevelName] = [];
+      }
+      currentFieldDef[currentLevelName].push(remainingPath);
+    } else {
+      currentFieldDef[currentLevelName] = undefined;
+    }
+  }
 
-const VALID_FIELDS = _.union(HOTEL_FIELDS, DESCRIPTION_FIELDS);
-
-const pickAndResolveFields = (contents, fields) => {
-  return fields.reduce(async (plainContent, field) => {
-    plainContent = await plainContent;
-    plainContent[field] = await contents[field];
-    if (field === 'roomTypes') {
-      for (let roomTypeId in plainContent[field]) {
-        plainContent[field][roomTypeId].id = roomTypeId;
+  for (let field in currentFieldDef) {
+    if (contents[field]) {
+      // No specific children selected
+      if (!currentFieldDef[field]) {
+        // Differentiate between storage pointers and plain objects
+        result[field] = contents[field].contents ? contents[field].contents : contents[field];
+      // Specific children selected
+      } else {
+        let searchSpace;
+        if (contents[field].ref && contents[field].contents) { // StoragePointer
+          searchSpace = contents[field].contents;
+        } else { // POJO
+          searchSpace = contents[field];
+        }
+        result[field] = flattenObject(searchSpace, currentFieldDef[field]);
+      }
+    } else if (contents && typeof contents === 'object') { // Mapping object such as roomTypes
+      for (let key in contents) {
+        if (contents[key][field]) {
+          if (!result[key]) {
+            result[key] = {};
+          }
+          result[key][field] = contents[key][field];
+        }
       }
     }
-    return plainContent;
-  }, {});
+  }
+
+  return result;
 };
 
-// TODO this will probably be rewritten when more (recursive) documents are added
-// TODO benefit from toPlainObject somehow
 const resolveHotelObject = async (hotel, fields) => {
-  let indexProperties;
-  let descriptionProperties;
-  const indexFields = _.intersection(fields, HOTEL_FIELDS);
-  if (indexFields.length) {
-    indexProperties = pickAndResolveFields(hotel, indexFields);
-  }
+  let plainHotel;
   try {
-    const descriptionFields = _.intersection(fields, DESCRIPTION_FIELDS);
-    if (descriptionFields.length) {
-      const indexContents = (await hotel.dataIndex).contents;
-      const description = (await indexContents.descriptionUri).contents;
-      descriptionProperties = pickAndResolveFields(description, descriptionFields);
+    if (fields.length) {
+      plainHotel = hotel.toPlainObject(fields);
+    } else {
+      plainHotel = hotel.toPlainObject();
     }
   } catch (e) {
     let message = 'Cannot get hotel data';
@@ -72,10 +98,10 @@ const resolveHotelObject = async (hotel, fields) => {
       },
     };
   }
-
+  const flattenedOffChainData = (flattenObject((await plainHotel).dataUri.contents, fields));
   return mapHotelObjectToResponse({
-    ...(await indexProperties),
-    ...(await descriptionProperties),
+    ...flattenedOffChainData.descriptionUri,
+    ...(flattenObject(await plainHotel, fields)),
     id: hotel.address,
   });
 };
@@ -83,10 +109,22 @@ const resolveHotelObject = async (hotel, fields) => {
 const calculateFields = (fieldsQuery) => {
   const fieldsArray = fieldsQuery.split(',');
   const mappedFields = mapHotelFieldsFromQuery(fieldsArray);
-  return _.intersection(
-    VALID_FIELDS,
-    _.union(OBLIGATORY_FIELDS, mappedFields)
-  );
+  return {
+    mapped: mappedFields,
+    toFlatten: mappedFields.map((f) => {
+      let firstPart = f;
+      if (f.indexOf('.') > -1) {
+        firstPart = f.substring(0, f.indexOf('.'));
+      }
+      if (DESCRIPTION_FIELDS.indexOf(firstPart) > -1) {
+        return `descriptionUri.${f}`;
+      }
+      if (HOTEL_FIELDS.indexOf(firstPart) > -1) {
+        return f;
+      }
+      return null;
+    }).filter((f) => !!f),
+  };
 };
 
 const fillHotelList = async (path, fields, hotels, limit, startWith) => {
@@ -94,19 +132,19 @@ const fillHotelList = async (path, fields, hotels, limit, startWith) => {
   let { items, nextStart } = paginate(hotels, limit, startWith, 'address');
   let rawHotels = [];
   for (let hotel of items) {
-    rawHotels.push(resolveHotelObject(hotel, fields));
+    rawHotels.push(resolveHotelObject(hotel, fields.toFlatten));
   }
   const resolvedItems = await Promise.all(rawHotels);
   let realItems = resolvedItems.filter((i) => !i.error);
   let realErrors = resolvedItems.filter((i) => i.error);
-  let next = nextStart ? `${baseUrl}${path}?limit=${limit}&fields=${fields.join(',')}&startWith=${nextStart}` : undefined;
+  let next = nextStart ? `${baseUrl}${path}?limit=${limit}&fields=${fields.mapped.join(',')}&startWith=${nextStart}` : undefined;
 
   if (realErrors.length && realItems.length < limit && nextStart) {
     const nestedResult = await fillHotelList(path, fields, hotels, limit - realItems.length, nextStart);
     realItems = realItems.concat(nestedResult.items);
     realErrors = realErrors.concat(nestedResult.errors);
     if (realItems.length && nestedResult.nextStart) {
-      next = `${baseUrl}${path}?limit=${limit}&fields=${fields.join(',')}&startWith=${nestedResult.nextStart}`;
+      next = `${baseUrl}${path}?limit=${limit}&fields=${fields.mapped.join(',')}&startWith=${nestedResult.nextStart}`;
     } else {
       next = undefined;
     }
@@ -124,11 +162,10 @@ const fillHotelList = async (path, fields, hotels, limit, startWith) => {
 const findAll = async (req, res, next) => {
   const { limit, startWith } = req.query;
   const fieldsQuery = req.query.fields || DEFAULT_HOTELS_FIELDS;
-  const fields = calculateFields(fieldsQuery);
 
   try {
     let hotels = await res.locals.wt.index.getAllHotels();
-    const { items, errors, next } = await fillHotelList(req.path, fields, hotels, limit, startWith);
+    const { items, errors, next } = await fillHotelList(req.path, calculateFields(fieldsQuery), hotels, limit, startWith);
     res.status(200).json({ items, errors, next });
   } catch (e) {
     if (e instanceof LimitValidationError) {
@@ -145,7 +182,6 @@ const find = async (req, res, next) => {
   let { hotelAddress } = req.params;
   const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
   const { wt } = res.locals;
-  const fields = calculateFields(fieldsQuery);
   let hotel;
   try {
     hotel = await wt.index.getHotel(hotelAddress);
@@ -154,7 +190,7 @@ const find = async (req, res, next) => {
   }
 
   try {
-    const resolvedHotel = await resolveHotelObject(hotel, fields);
+    const resolvedHotel = await resolveHotelObject(hotel, calculateFields(fieldsQuery).toFlatten);
     if (resolvedHotel.error) {
       return next(new HttpBadGatewayError('hotelNotAccessible', resolvedHotel.error, 'Hotel data is not accessible.'));
     }

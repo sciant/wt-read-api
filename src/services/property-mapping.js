@@ -6,6 +6,11 @@ const mapHotelObjectToResponse = (hotel) => {
   return Object.keys(hotel).reduce((newHotel, field) => {
     const newField = hotelMapping[field] || field;
     newHotel[newField] = hotel[field];
+    if (field === 'roomTypes') {
+      for (let roomTypeId in hotel[field]) {
+        newHotel[field][roomTypeId].id = roomTypeId;
+      }
+    }
     return newHotel;
   }, {});
 };

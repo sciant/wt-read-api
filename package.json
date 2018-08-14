@@ -9,7 +9,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "start": "node ./src/index.js",
     "dev": "WT_CONFIG=dev npm start",
-    "deploy": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public",
+    "deploy": "now -e NODE_ENV=production -e WT_BAD_GATEWAY_CODE=500 --team windingtree --token $NOW_TOKEN --docker --public",
     "alias": "now alias --team windingtree --token=$NOW_TOKEN",
     "dev-net": "./scripts/dev-net.sh"
   },

@@ -144,43 +144,43 @@ const RATE_PLANS = {
         },
       },
     },
-  },
-  'rate-plan-2': {
-    'name': 'rate plan 2',
-    'description': 'string',
-    'currency': 'string',
-    'price': 123,
-    'roomTypeIds': [
-      'room-type-3333',
-    ],
-    'updatedAt': '2018-07-09T09:22:54.548Z',
-    'availableForReservation': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
-    },
-    'availableForTravel': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
-    },
-    'modifiers': [
-      {
-        'from': '2018-01-30',
-        'to': '2018-02-20',
-        'adjustment': -3.1,
-        'conditions': {
-          'minLengthOfStay': 2,
-          'maxAge': 0,
+    'rate-plan-2': {
+      'name': 'rate plan 2',
+      'description': 'string',
+      'currency': 'string',
+      'price': 123,
+      'roomTypeIds': [
+        'room-type-3333',
+      ],
+      'updatedAt': '2018-07-09T09:22:54.548Z',
+      'availableForReservation': {
+        'from': '2018-07-09',
+        'to': '2018-07-09',
+      },
+      'availableForTravel': {
+        'from': '2018-07-09',
+        'to': '2018-07-09',
+      },
+      'modifiers': [
+        {
+          'from': '2018-01-30',
+          'to': '2018-02-20',
+          'adjustment': -3.1,
+          'conditions': {
+            'minLengthOfStay': 2,
+            'maxAge': 0,
+          },
         },
-      },
-    ],
-    'restrictions': {
-      'bookingCutOff': {
-        'min': 0,
-        'max': 5,
-      },
-      'lengthOfStay': {
-        'min': 0,
-        'max': 5,
+      ],
+      'restrictions': {
+        'bookingCutOff': {
+          'min': 0,
+          'max': 5,
+        },
+        'lengthOfStay': {
+          'min': 0,
+          'max': 5,
+        },
       },
     },
   },

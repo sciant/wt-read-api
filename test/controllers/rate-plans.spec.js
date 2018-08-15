@@ -37,7 +37,7 @@ describe('Rate plans', function () {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {
-          expect(res.body).to.eql(RATE_PLANS.ratePlans);
+          expect(res.body).to.eql(RATE_PLANS);
           for (let ratePlan in res.body) {
             expect(res.body[ratePlan]).to.have.property('id');
           }
@@ -45,7 +45,7 @@ describe('Rate plans', function () {
     });
   });
 
-  describe('GET /hotels/:hotelAddress/ratePlans/:ratePLanId', () => {
+  describe('GET /hotels/:hotelAddress/ratePlans/:ratePlanId', () => {
     it('should return a rate plan', async () => {
       await request(server)
         .get(`/hotels/${address}/ratePlans/rate-plan-1`)

@@ -1,15 +1,13 @@
 const { Http404Error } = require('../errors');
 
-// TODO use toPlainObject
 const findAll = async (req, res, next) => {
   let { hotelAddress } = req.params;
   const { wt } = res.locals;
 
   try {
     let hotel = await wt.index.getHotel(hotelAddress);
-    const indexRow = (await hotel.dataIndex).contents;
-    const description = (await indexRow.descriptionUri).contents;
-    let roomTypes = await description.roomTypes;
+    let plainHotel = await hotel.toPlainObject(['descriptionUri.roomTypes']);
+    let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
     for (let roomTypeId in roomTypes) {
       roomTypes[roomTypeId].id = roomTypeId;
     }
@@ -19,15 +17,14 @@ const findAll = async (req, res, next) => {
   }
 };
 
-// TODO use toPlainObject
 const find = async (req, res, next) => {
   let { hotelAddress, roomTypeId } = req.params;
   const { wt } = res.locals;
   try {
-    let WTHotel = await wt.index.getHotel(hotelAddress);
-    const indexRow = (await WTHotel.dataIndex).contents;
-    const description = (await indexRow.descriptionUri).contents;
-    let roomType = (await description.roomTypes)[roomTypeId];
+    let hotel = await wt.index.getHotel(hotelAddress);
+    let plainHotel = await hotel.toPlainObject(['descriptionUri.roomTypes']);
+    let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
+    let roomType = roomTypes[roomTypeId];
     if (!roomType) {
       return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
     }

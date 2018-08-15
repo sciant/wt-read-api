@@ -1,15 +1,13 @@
 const { Http404Error } = require('../errors');
 
-// TODO use toPlainObject
 const findAll = async (req, res, next) => {
   let { hotelAddress } = req.params;
   const { wt } = res.locals;
 
   try {
     let hotel = await wt.index.getHotel(hotelAddress);
-    const indexRow = (await hotel.dataIndex).contents;
-    const ratePlansDocument = (await indexRow.ratePlansUri).contents;
-    let ratePlans = await ratePlansDocument.ratePlans;
+    let plainHotel = await hotel.toPlainObject(['ratePlansUri']);
+    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents;
     for (let ratePlanId in ratePlans) {
       ratePlans[ratePlanId].id = ratePlanId;
     }
@@ -19,15 +17,14 @@ const findAll = async (req, res, next) => {
   }
 };
 
-// TODO use toPlainObject
 const find = async (req, res, next) => {
   let { hotelAddress, ratePlanId } = req.params;
   const { wt } = res.locals;
   try {
-    let WTHotel = await wt.index.getHotel(hotelAddress);
-    const indexRow = (await WTHotel.dataIndex).contents;
-    const ratePlansDocument = (await indexRow.ratePlansUri).contents;
-    let ratePlan = (await ratePlansDocument.ratePlans)[ratePlanId];
+    let hotel = await wt.index.getHotel(hotelAddress);
+    let plainHotel = await hotel.toPlainObject(['ratePlansUri']);
+    const ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans;
+    let ratePlan = ratePlans[ratePlanId];
     if (!ratePlan) {
       return next(new Http404Error('ratePlanNotFound', 'Rate plan not found'));
     }

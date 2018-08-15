@@ -7,7 +7,7 @@ const cors = require('cors');
 const YAML = require('yamljs');
 const app = express();
 const config = require('./config');
-const { HttpError, HttpInternalError, Http404Error } = require('./errors');
+const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
 const { version } = require('../package.json');
 const { hotelsRouter } = require('./routes/hotels');
 

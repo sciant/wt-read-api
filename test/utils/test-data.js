@@ -96,54 +96,97 @@ const HOTEL_DESCRIPTION = {
     'WiFi',
   ],
   'updatedAt': '2018-06-19T13:19:58.190Z',
+  'cancellationPolicies': [
+    {
+      'amount': 100,
+    },
+  ],
 };
 
-const RATE_PLAN = {
-  'id': 'rate-plan-1111',
-  'name': 'string',
-  'description': 'string',
-  'currency': 'string',
-  'roomTypeIds': [
-    'room-type-123',
-  ],
-  'updatedAt': '2018-07-09T09:22:54.548Z',
-  'availableForReservation': {
-    'start': '2018-07-09T09:22:54.548Z',
-    'end': '2018-07-09T09:22:54.548Z',
-  },
-  'availableForTravel': {
-    'start': '2018-07-09T09:22:54.548Z',
-    'end': '2018-07-09T09:22:54.548Z',
-  },
-  'pricing': {
-    'base': {
-      'maxOccupancyLimit': 0,
-      'rates': [
+const RATE_PLANS = {
+  'ratePlans': {
+    'rate-plan-1': {
+      'name': 'rate plan 1',
+      'description': 'string',
+      'currency': 'string',
+      'price': 123,
+      'roomTypeIds': [
+        'room-type-1111',
+      ],
+      'updatedAt': '2018-07-09T09:22:54.548Z',
+      'availableForReservation': {
+        'from': '2018-07-09',
+        'to': '2018-07-09',
+      },
+      'availableForTravel': {
+        'from': '2018-07-09',
+        'to': '2018-07-09',
+      },
+      'modifiers': [
         {
-          'amount': 0,
-          'minLengthOfStay': 0,
-          'maxAge': 0,
+          'from': '2018-01-30',
+          'to': '2018-02-20',
+          'adjustment': -3.1,
+          'conditions': {
+            'minLengthOfStay': 2,
+            'maxAge': 0,
+          },
         },
       ],
-    },
-    'additional': {
-      'maxOccupancyLimit': 0,
-      'rates': {},
+      'restrictions': {
+        'bookingCutOff': {
+          'min': 0,
+          'max': 5,
+        },
+        'lengthOfStay': {
+          'min': 0,
+          'max': 5,
+        },
+      },
     },
   },
-  'restrictions': {
-    'bookingCutOff': {
-      'min': 0,
-      'max': 0,
+  'rate-plan-2': {
+    'name': 'rate plan 2',
+    'description': 'string',
+    'currency': 'string',
+    'price': 123,
+    'roomTypeIds': [
+      'room-type-3333',
+    ],
+    'updatedAt': '2018-07-09T09:22:54.548Z',
+    'availableForReservation': {
+      'from': '2018-07-09',
+      'to': '2018-07-09',
     },
-    'lengthOfStay': {
-      'min': 0,
-      'max': 0,
+    'availableForTravel': {
+      'from': '2018-07-09',
+      'to': '2018-07-09',
+    },
+    'modifiers': [
+      {
+        'from': '2018-01-30',
+        'to': '2018-02-20',
+        'adjustment': -3.1,
+        'conditions': {
+          'minLengthOfStay': 2,
+          'maxAge': 0,
+        },
+      },
+    ],
+    'restrictions': {
+      'bookingCutOff': {
+        'min': 0,
+        'max': 5,
+      },
+      'lengthOfStay': {
+        'min': 0,
+        'max': 5,
+      },
     },
   },
 };
 
 module.exports = {
   HOTEL_DESCRIPTION,
-  RATE_PLAN,
+  RATE_PLANS,
 };

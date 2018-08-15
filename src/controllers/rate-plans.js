@@ -8,12 +8,12 @@ const findAll = async (req, res, next) => {
   try {
     let hotel = await wt.index.getHotel(hotelAddress);
     const indexRow = (await hotel.dataIndex).contents;
-    const description = (await indexRow.descriptionUri).contents;
-    let roomTypes = await description.roomTypes;
-    for (let roomTypeId in roomTypes) {
-      roomTypes[roomTypeId].id = roomTypeId;
+    const ratePlansDocument = (await indexRow.ratePlansUri).contents;
+    let ratePlans = await ratePlansDocument.ratePlans;
+    for (let ratePlanId in ratePlans) {
+      ratePlans[ratePlanId].id = ratePlanId;
     }
-    res.status(200).json(roomTypes);
+    res.status(200).json(ratePlans);
   } catch (e) {
     next(e);
   }
@@ -21,18 +21,18 @@ const findAll = async (req, res, next) => {
 
 // TODO use toPlainObject
 const find = async (req, res, next) => {
-  let { hotelAddress, roomTypeId } = req.params;
+  let { hotelAddress, ratePlanId } = req.params;
   const { wt } = res.locals;
   try {
     let WTHotel = await wt.index.getHotel(hotelAddress);
     const indexRow = (await WTHotel.dataIndex).contents;
-    const description = (await indexRow.descriptionUri).contents;
-    let roomType = (await description.roomTypes)[roomTypeId];
-    if (!roomType) {
-      return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
+    const ratePlansDocument = (await indexRow.ratePlansUri).contents;
+    let ratePlan = (await ratePlansDocument.ratePlans)[ratePlanId];
+    if (!ratePlan) {
+      return next(new Http404Error('ratePlanNotFound', 'Rate plan not found'));
     }
-    roomType.id = roomTypeId;
-    res.status(200).json(roomType);
+    ratePlan.id = ratePlanId;
+    res.status(200).json(ratePlan);
   } catch (e) {
     next(e);
   }

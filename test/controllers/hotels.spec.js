@@ -11,7 +11,7 @@ const {
 } = require('../../scripts/local-network');
 const {
   HOTEL_DESCRIPTION,
-  RATE_PLAN,
+  RATE_PLANS,
 } = require('../utils/test-data');
 
 const web3 = require('web3');
@@ -92,8 +92,8 @@ describe('Hotels', function () {
 
   describe('GET /hotels', () => {
     beforeEach(async () => {
-      hotel0address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
-      hotel1address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
+      hotel0address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
+      hotel1address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
     });
 
     it('should return default fields for hotels', async () => {
@@ -344,7 +344,7 @@ describe('Hotels', function () {
   describe('GET /hotels/:hotelAddress', () => {
     let address;
     beforeEach(async () => {
-      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
+      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
       address = web3.utils.toChecksumAddress(address);
     });
 

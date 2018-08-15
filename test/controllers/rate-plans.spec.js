@@ -12,7 +12,7 @@ const {
   RATE_PLANS,
 } = require('../utils/test-data');
 
-describe('Room types', function () {
+describe('Rate plans', function () {
   let server;
   let wtLibsInstance;
   let address, indexContract;
@@ -30,35 +30,35 @@ describe('Room types', function () {
     server.close();
   });
 
-  describe('GET /hotels/:hotelAddress/roomTypes', () => {
-    it('should return room types', async () => {
+  describe('GET /hotels/:hotelAddress/ratePlans', () => {
+    it('should return rate plans', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes`)
+        .get(`/hotels/${address}/ratePlans`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {
-          expect(res.body).to.eql(HOTEL_DESCRIPTION.roomTypes);
-          for (let roomType in res.body) {
-            expect(res.body[roomType]).to.have.property('id');
+          expect(res.body).to.eql(RATE_PLANS.ratePlans);
+          for (let ratePlan in res.body) {
+            expect(res.body[ratePlan]).to.have.property('id');
           }
         });
     });
   });
 
-  describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId', () => {
-    it('should return a room type ', async () => {
+  describe('GET /hotels/:hotelAddress/ratePlans/:ratePLanId', () => {
+    it('should return a rate plan', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes/room-type-1111`)
+        .get(`/hotels/${address}/ratePlans/rate-plan-1`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {
-          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('id', 'rate-plan-1');
         });
     });
 
     it('should return 404', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes/room-type-0000}`)
+        .get(`/hotels/${address}/ratePlans/rate-plan-0000}`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);

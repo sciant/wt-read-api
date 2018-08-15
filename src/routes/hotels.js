@@ -15,8 +15,7 @@ hotelsRouter.get('/hotels/:hotelAddress', injectWtLibs, validateHotelAddress, ho
 
 hotelsRouter.get('/hotels/:hotelAddress/roomTypes', injectWtLibs, validateHotelAddress, roomTypesController.findAll, handleOnChainErrors);
 hotelsRouter.get('/hotels/:hotelAddress/roomTypes/:roomTypeId', injectWtLibs, validateHotelAddress, roomTypesController.find, handleOnChainErrors);
-// TODO
-// hotelsRouter.get('/hotels/:hotelAddress/roomTypes/:roomTypeId/ratePlans', injectWtLibs, validateHotelAddress, roomTypesController.findRatePlans, handleOnChainErrors);
+hotelsRouter.get('/hotels/:hotelAddress/roomTypes/:roomTypeId/ratePlans', injectWtLibs, validateHotelAddress, roomTypesController.findRatePlans, handleOnChainErrors);
 
 hotelsRouter.get('/hotels/:hotelAddress/ratePlans', injectWtLibs, validateHotelAddress, ratePlansController.findAll, handleOnChainErrors);
 hotelsRouter.get('/hotels/:hotelAddress/ratePlans/:ratePlanId', injectWtLibs, validateHotelAddress, ratePlansController.find, handleOnChainErrors);

@@ -35,7 +35,30 @@ const find = async (req, res, next) => {
   }
 };
 
+const findRatePlans = async (req, res, next) => {
+  let { hotelAddress, roomTypeId } = req.params;
+  const { wt } = res.locals;
+  try {
+    let hotel = await wt.index.getHotel(hotelAddress);
+    let plainHotel = await hotel.toPlainObject(['ratePlansUri.ratePlans']);
+    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans;
+    for (let ratePlanId in ratePlans) {
+      ratePlans[ratePlanId].id = ratePlanId;
+    }
+    ratePlans = Object.values(ratePlans)
+      .filter((rp) => rp.roomTypeIds && rp.roomTypeIds.indexOf(roomTypeId) > -1)
+      .reduce((result, plan) => {
+        result[plan.id] = plan;
+        return result;
+      }, {});
+    res.status(200).json({ ratePlans: ratePlans });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   findAll,
   find,
+  findRatePlans,
 };

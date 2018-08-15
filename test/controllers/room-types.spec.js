@@ -58,10 +58,38 @@ describe('Room types', function () {
 
     it('should return 404', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes/room-type-0000}`)
+        .get(`/hotels/${address}/roomTypes/room-type-0000`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);
+    });
+  });
+
+  describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId/ratePlans', () => {
+    it('should return all appropriate rate plans', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('ratePlans');
+          const ratePlans = Object.values(res.body.ratePlans);
+          expect(ratePlans.length).to.be.eql(1);
+          expect(ratePlans[0]).to.have.property('id', 'rate-plan-1');
+        });
+    });
+
+    it('should return empty object if no rate plans are associated', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-2222/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).to.have.property('ratePlans');
+          const ratePlans = Object.values(res.body.ratePlans);
+          expect(ratePlans.length).to.be.eql(0);
+        });
     });
   });
 });

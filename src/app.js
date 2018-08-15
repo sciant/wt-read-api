@@ -20,6 +20,13 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Generic middlewares
 app.use(cors());
 app.use(bodyParser.json());
+app.use((err, req, res, next) => {
+  // Catch and handle bodyParser errors.
+  if (err.statusCode === 400 && err.type === 'entity.parse.failed') {
+    return next(new HttpBadRequestError('badRequest', 'Invalid JSON.'));
+  }
+  next(err);
+});
 
 // Logging only when not in test mode
 app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {

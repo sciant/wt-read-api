@@ -189,18 +189,9 @@ const findAll = async (req, res, next) => {
 };
 
 const find = async (req, res, next) => {
-  let { hotelAddress } = req.params;
-  const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
-  const { wt } = res.locals;
-  let hotel;
   try {
-    hotel = await wt.index.getHotel(hotelAddress);
-  } catch (e) {
-    return next(new Http404Error('hotelNotFound', 'Hotel not found'));
-  }
-
-  try {
-    const resolvedHotel = await resolveHotelObject(hotel, calculateFields(fieldsQuery).toFlatten);
+    const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
+    const resolvedHotel = await resolveHotelObject(res.locals.wt.hotel, calculateFields(fieldsQuery).toFlatten);
     if (resolvedHotel.error) {
       return next(new HttpBadGatewayError('hotelNotAccessible', resolvedHotel.error, 'Hotel data is not accessible.'));
     }

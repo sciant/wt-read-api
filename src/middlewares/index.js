@@ -1,7 +1,8 @@
 const WTLibs = require('@windingtree/wt-js-libs');
 const wtJsLibs = require('../services/wt-js-libs');
 const { HttpBadGatewayError, HttpPaymentRequiredError,
-  HttpValidationError, HttpForbiddenError } = require('../errors');
+  HttpValidationError, HttpForbiddenError,
+  HttpInternalError, Http404Error } = require('../errors');
 
 const injectWtLibs = async (req, res, next) => {
   if (res.locals.wt) {
@@ -45,8 +46,25 @@ const handleOnChainErrors = (err, req, res, next) => {
   next(err);
 };
 
+/**
+ * Resolves a hotel from req.params.hotelAddress
+ */
+const resolveHotel = async (req, res, next) => {
+  if (!res.locals.wt) {
+    return next(new HttpInternalError('Bad middleware order.'));
+  }
+  let { hotelAddress } = req.params;
+  try {
+    res.locals.wt.hotel = await res.locals.wt.index.getHotel(hotelAddress);
+    return next();
+  } catch (e) {
+    return next(new Http404Error('hotelNotFound', 'Hotel not found'));
+  }
+};
+
 module.exports = {
   injectWtLibs,
   validateHotelAddress,
   handleOnChainErrors,
+  resolveHotel,
 };

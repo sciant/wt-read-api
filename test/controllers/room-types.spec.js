@@ -60,7 +60,7 @@ describe('Room types', function () {
 
     it('should return 404 for non existing hotel', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes/room-type-0000`)
+        .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-0000')
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);
@@ -122,6 +122,14 @@ describe('Room types', function () {
           const ratePlans = Object.values(res.body);
           expect(ratePlans.length).to.be.eql(0);
         });
+    });
+
+    it('should return 404 for non existing hotel', async () => {
+      await request(server)
+        .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-2222/ratePlans')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
     });
   });
 });

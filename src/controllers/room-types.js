@@ -12,14 +12,19 @@ const detectRatePlans = (roomTypeId, ratePlansObject) => {
     }, {});
 };
 
+const getPlainHotel = async (hotel, fieldsQuery) => {
+  fieldsQuery = fieldsQuery.filter((x) => !!x);
+  const resolvedFields = ['descriptionUri.roomTypes'];
+  if (fieldsQuery.indexOf('ratePlans') > -1) {
+    resolvedFields.push('ratePlansUri.ratePlans');
+  }
+  return hotel.toPlainObject(resolvedFields);
+};
+
 const findAll = async (req, res, next) => {
   const fieldsQuery = (req.query.fields && req.query.fields.split(',')) || [];
   try {
-    const resolvedFields = ['descriptionUri.roomTypes'];
-    if (fieldsQuery.indexOf('ratePlans') > -1) {
-      resolvedFields.push('ratePlansUri.ratePlans');
-    }
-    let plainHotel = await res.locals.wt.hotel.toPlainObject(resolvedFields);
+    const plainHotel = await getPlainHotel(res.locals.wt.hotel, fieldsQuery);
     let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
     for (let roomTypeId in roomTypes) {
       roomTypes[roomTypeId].id = roomTypeId;
@@ -37,11 +42,7 @@ const find = async (req, res, next) => {
   let { roomTypeId } = req.params;
   const fieldsQuery = (req.query.fields && req.query.fields.split(',')) || [];
   try {
-    const resolvedFields = ['descriptionUri.roomTypes'];
-    if (fieldsQuery.indexOf('ratePlans') > -1) {
-      resolvedFields.push('ratePlansUri.ratePlans');
-    }
-    let plainHotel = await res.locals.wt.hotel.toPlainObject(resolvedFields);
+    const plainHotel = await getPlainHotel(res.locals.wt.hotel, fieldsQuery);
     let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
     let roomType = roomTypes[roomTypeId];
     if (!roomType) {

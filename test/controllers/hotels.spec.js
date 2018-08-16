@@ -442,6 +442,33 @@ describe('Hotels', function () {
         .expect(200);
     });
 
+    it('should return ratePlans if asked for', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'ratePlans.price'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'ratePlans', 'id']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
+          expect(Object.keys(res.body.ratePlans).length).to.be.gt(0);
+          for (let ratePlan in res.body.ratePlans) {
+            expect(res.body.ratePlans[ratePlan]).to.have.property('id');
+            expect(res.body.ratePlans[ratePlan]).to.have.property('price');
+            expect(res.body.ratePlans[ratePlan]).to.not.have.property('description');
+          }
+        })
+        .expect(200);
+    });
+
     it('should return 502 when on-chain data is inaccessible', async () => {
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
         getHotel: sinon.stub().resolves(new FakeHotelWithBadOnChainData()),

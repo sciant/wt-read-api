@@ -11,6 +11,11 @@ const mapHotelObjectToResponse = (hotel) => {
         newHotel[field][roomTypeId].id = roomTypeId;
       }
     }
+    if (field === 'ratePlans') {
+      for (let ratePlanId in hotel[field]) {
+        newHotel[field][ratePlanId].id = ratePlanId;
+      }
+    }
     return newHotel;
   }, {});
 };

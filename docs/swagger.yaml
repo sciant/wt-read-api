@@ -161,6 +161,8 @@ paths:
                 - amenities
                 - managerAddress
                 - updatedAt
+                - cancellationPolicies
+                - ratePlans
       responses:
         '200':
           description: Hotel object

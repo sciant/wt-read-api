@@ -8,6 +8,7 @@ const {
 const {
   HOTEL_FIELDS,
   DESCRIPTION_FIELDS,
+  RATE_PLANS_FIELDS,
   DEFAULT_HOTELS_FIELDS,
   DEFAULT_HOTEL_FIELDS,
 } = require('../constants');
@@ -99,12 +100,16 @@ const resolveHotelObject = async (hotel, fields) => {
       },
     };
   }
-  const flattenedOffChainData = (flattenObject(plainHotel.dataUri.contents, fields));
-  return mapHotelObjectToResponse({
+  const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, fields);
+  const hotelData = {
     ...flattenedOffChainData.descriptionUri,
     ...(flattenObject(plainHotel, fields)),
     id: hotel.address,
-  });
+  };
+  if (flattenedOffChainData.ratePlansUri && flattenedOffChainData.ratePlansUri.ratePlans) {
+    hotelData.ratePlans = flattenedOffChainData.ratePlansUri.ratePlans;
+  }
+  return mapHotelObjectToResponse(hotelData);
 };
 
 const calculateFields = (fieldsQuery) => {
@@ -119,6 +124,10 @@ const calculateFields = (fieldsQuery) => {
       }
       if (DESCRIPTION_FIELDS.indexOf(firstPart) > -1) {
         return `descriptionUri.${f}`;
+      }
+
+      if (RATE_PLANS_FIELDS.indexOf(firstPart) > -1) {
+        return `ratePlansUri.${f}`;
       }
       if (HOTEL_FIELDS.indexOf(firstPart) > -1) {
         return f;

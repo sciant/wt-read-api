@@ -187,6 +187,14 @@ paths:
           schema:
             $ref: >-
               https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+        - name: fields
+          in: query
+          required: false
+          description: Additional fields to return
+          schema:
+            type: string
+            enum:
+            - ratePlans
       responses:
         '200':
           description: Room types list
@@ -220,6 +228,14 @@ paths:
           schema:
             $ref: >-
               https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType
+        - name: fields
+          in: query
+          required: false
+          description: Additional fields to return
+          schema:
+            type: string
+            enum:
+            - ratePlans
       responses:
         '200':
           description: Room type with id = `id`

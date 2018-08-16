@@ -72,8 +72,7 @@ describe('Room types', function () {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {
-          expect(res.body).to.have.property('ratePlans');
-          const ratePlans = Object.values(res.body.ratePlans);
+          const ratePlans = Object.values(res.body);
           expect(ratePlans.length).to.be.eql(1);
           expect(ratePlans[0]).to.have.property('id', 'rate-plan-1');
         });
@@ -86,8 +85,7 @@ describe('Room types', function () {
         .set('accept', 'application/json')
         .expect(200)
         .expect((res) => {
-          expect(res.body).to.have.property('ratePlans');
-          const ratePlans = Object.values(res.body.ratePlans);
+          const ratePlans = Object.values(res.body);
           expect(ratePlans.length).to.be.eql(0);
         });
     });

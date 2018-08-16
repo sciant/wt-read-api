@@ -51,7 +51,7 @@ const findRatePlans = async (req, res, next) => {
         result[plan.id] = plan;
         return result;
       }, {});
-    res.status(200).json({ ratePlans: ratePlans });
+    res.status(200).json(ratePlans);
   } catch (e) {
     next(e);
   }

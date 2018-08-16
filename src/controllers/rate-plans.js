@@ -11,7 +11,7 @@ const findAll = async (req, res, next) => {
     for (let ratePlanId in ratePlans) {
       ratePlans[ratePlanId].id = ratePlanId;
     }
-    res.status(200).json({ ratePlans: ratePlans });
+    res.status(200).json(ratePlans);
   } catch (e) {
     next(e);
   }

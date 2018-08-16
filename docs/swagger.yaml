@@ -253,7 +253,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/RatePlans'
+                $ref: '#/components/schemas/RatePlansResponse'
   '/hotels/{hotelId}/ratePlans':
     get:
       parameters:
@@ -269,7 +269,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/RatePlans'
+                $ref: '#/components/schemas/RatePlansResponse'
                 
   '/hotels/{hotelId}/ratePlans/{ratePlanId}':
     get:

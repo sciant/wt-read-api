@@ -7,11 +7,11 @@ const findAll = async (req, res, next) => {
   try {
     let hotel = await wt.index.getHotel(hotelAddress);
     let plainHotel = await hotel.toPlainObject(['ratePlansUri']);
-    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents;
+    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans;
     for (let ratePlanId in ratePlans) {
       ratePlans[ratePlanId].id = ratePlanId;
     }
-    res.status(200).json(ratePlans);
+    res.status(200).json({ ratePlans: ratePlans });
   } catch (e) {
     next(e);
   }

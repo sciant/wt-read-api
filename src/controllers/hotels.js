@@ -8,7 +8,6 @@ const {
 const {
   HOTEL_FIELDS,
   DESCRIPTION_FIELDS,
-  RATE_PLANS_FIELDS,
   DEFAULT_HOTELS_FIELDS,
   DEFAULT_HOTEL_FIELDS,
 } = require('../constants');
@@ -106,8 +105,8 @@ const resolveHotelObject = async (hotel, fields) => {
     ...(flattenObject(plainHotel, fields)),
     id: hotel.address,
   };
-  if (flattenedOffChainData.ratePlansUri && flattenedOffChainData.ratePlansUri.ratePlans) {
-    hotelData.ratePlans = flattenedOffChainData.ratePlansUri.ratePlans;
+  if (flattenedOffChainData.ratePlansUri) {
+    hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
   }
   return mapHotelObjectToResponse(hotelData);
 };
@@ -126,9 +125,10 @@ const calculateFields = (fieldsQuery) => {
         return `descriptionUri.${f}`;
       }
 
-      if (RATE_PLANS_FIELDS.indexOf(firstPart) > -1) {
-        return `ratePlansUri.${f}`;
+      if (firstPart === 'ratePlansUri') {
+        return f;
       }
+
       if (HOTEL_FIELDS.indexOf(firstPart) > -1) {
         return f;
       }

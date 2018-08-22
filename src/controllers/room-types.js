@@ -16,7 +16,7 @@ const getPlainHotel = async (hotel, fieldsQuery) => {
   fieldsQuery = fieldsQuery.filter((x) => !!x);
   const resolvedFields = ['descriptionUri.roomTypes'];
   if (fieldsQuery.indexOf('ratePlans') > -1) {
-    resolvedFields.push('ratePlansUri.ratePlans');
+    resolvedFields.push('ratePlansUri');
   }
   return hotel.toPlainObject(resolvedFields);
 };
@@ -29,7 +29,7 @@ const findAll = async (req, res, next) => {
     for (let roomTypeId in roomTypes) {
       roomTypes[roomTypeId].id = roomTypeId;
       if (fieldsQuery.indexOf('ratePlans') > -1) {
-        roomTypes[roomTypeId].ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans);
+        roomTypes[roomTypeId].ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
       }
     }
     res.status(200).json(roomTypes);
@@ -50,7 +50,7 @@ const find = async (req, res, next) => {
     }
     roomType.id = roomTypeId;
     if (fieldsQuery.indexOf('ratePlans') > -1) {
-      roomType.ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans);
+      roomType.ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
     }
     res.status(200).json(roomType);
   } catch (e) {
@@ -61,8 +61,8 @@ const find = async (req, res, next) => {
 const findRatePlans = async (req, res, next) => {
   let { roomTypeId } = req.params;
   try {
-    let plainHotel = await res.locals.wt.hotel.toPlainObject(['ratePlansUri.ratePlans']);
-    const ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans);
+    let plainHotel = await res.locals.wt.hotel.toPlainObject(['ratePlansUri']);
+    const ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
     res.status(200).json(ratePlans);
   } catch (e) {
     next(e);

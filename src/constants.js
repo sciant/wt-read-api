@@ -20,17 +20,12 @@ const DESCRIPTION_FIELDS = [
   'cancellationPolicies',
 ];
 
-const RATE_PLANS_FIELDS = [
-  'ratePlans',
-];
-
 const DEFAULT_PAGE_SIZE = 30;
 const MAX_PAGE_SIZE = 300;
 
 module.exports = {
   DESCRIPTION_FIELDS,
   HOTEL_FIELDS,
-  RATE_PLANS_FIELDS,
   DEFAULT_HOTELS_FIELDS,
   DEFAULT_HOTEL_FIELDS,
   DEFAULT_PAGE_SIZE,

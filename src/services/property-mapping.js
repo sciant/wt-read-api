@@ -22,11 +22,12 @@ const mapHotelObjectToResponse = (hotel) => {
 
 const fieldMapping = {
   managerAddress: 'manager',
+  ratePlans: 'ratePlansUri',
 };
 
 const mapHotelFieldsFromQuery = (fields) => {
   return fields.reduce((newFields, field) => {
-    const newField = fieldMapping[field] || field;
+    const newField = field.split('.').map((f) => fieldMapping[f] || f).join('.');
     newFields.push(newField);
     return newFields;
   }, []);

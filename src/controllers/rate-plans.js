@@ -3,7 +3,7 @@ const { Http404Error } = require('../errors');
 const findAll = async (req, res, next) => {
   try {
     let plainHotel = await res.locals.wt.hotel.toPlainObject(['ratePlansUri']);
-    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans;
+    let ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents;
     for (let ratePlanId in ratePlans) {
       ratePlans[ratePlanId].id = ratePlanId;
     }
@@ -17,7 +17,7 @@ const find = async (req, res, next) => {
   let { ratePlanId } = req.params;
   try {
     let plainHotel = await res.locals.wt.hotel.toPlainObject(['ratePlansUri']);
-    const ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents.ratePlans;
+    const ratePlans = plainHotel.dataUri.contents.ratePlansUri.contents;
     let ratePlan = ratePlans[ratePlanId];
     if (!ratePlan) {
       return next(new Http404Error('ratePlanNotFound', 'Rate plan not found'));

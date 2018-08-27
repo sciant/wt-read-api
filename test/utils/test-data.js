@@ -96,6 +96,7 @@ const HOTEL_DESCRIPTION = {
     'WiFi',
   ],
   'updatedAt': '2018-06-19T13:19:58.190Z',
+  'defaultCancellationAmount': 0,
   'cancellationPolicies': [
     {
       'amount': 100,
@@ -123,10 +124,10 @@ const RATE_PLANS = {
     },
     'modifiers': [
       {
-        'from': '2018-01-30',
-        'to': '2018-02-20',
         'adjustment': -3.1,
         'conditions': {
+          'from': '2018-01-30',
+          'to': '2018-02-20',
           'minLengthOfStay': 2,
           'maxAge': 0,
         },
@@ -162,10 +163,10 @@ const RATE_PLANS = {
     },
     'modifiers': [
       {
-        'from': '2018-01-30',
-        'to': '2018-02-20',
         'adjustment': -3.1,
         'conditions': {
+          'from': '2018-01-30',
+          'to': '2018-02-20',
           'minLengthOfStay': 2,
           'maxAge': 0,
         },

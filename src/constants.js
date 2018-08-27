@@ -17,6 +17,7 @@ const DESCRIPTION_FIELDS = [
   'images',
   'amenities',
   'updatedAt',
+  'defaultCancellationAmount',
   'cancellationPolicies',
 ];
 

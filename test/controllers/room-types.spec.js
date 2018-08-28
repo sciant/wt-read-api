@@ -9,7 +9,7 @@ const {
 } = require('../../scripts/local-network');
 const {
   HOTEL_DESCRIPTION,
-  RATE_PLAN,
+  RATE_PLANS,
 } = require('../utils/test-data');
 
 describe('Room types', function () {
@@ -23,7 +23,7 @@ describe('Room types', function () {
     wtLibsInstance = wtJsLibs.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
-    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN));
+    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
   });
 
   afterEach(() => {
@@ -43,6 +43,28 @@ describe('Room types', function () {
           }
         });
     });
+
+    it('should include ratePlans if fields is present', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes?fields=ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.eql(HOTEL_DESCRIPTION.roomTypes);
+          for (let roomType in res.body) {
+            expect(res.body[roomType]).to.have.property('id');
+            expect(res.body[roomType]).to.have.property('ratePlans');
+          }
+        });
+    });
+
+    it('should return 404 for non existing hotel', async () => {
+      await request(server)
+        .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-0000')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
   });
 
   describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId', () => {
@@ -56,9 +78,55 @@ describe('Room types', function () {
         });
     });
 
-    it('should return 404', async () => {
+    it('should include ratePlans if fields is present', async () => {
       await request(server)
-        .get(`/hotels/${address}/roomTypes/room-type-0000}`)
+        .get(`/hotels/${address}/roomTypes/room-type-1111?fields=ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('ratePlans');
+          expect(Object.values(res.body.ratePlans).length).to.be.eql(1);
+        });
+    });
+
+    it('should return 404 for non existing room type', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-0000`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+  });
+
+  describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId/ratePlans', () => {
+    it('should return all appropriate rate plans', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          const ratePlans = Object.values(res.body);
+          expect(ratePlans.length).to.be.eql(1);
+          expect(ratePlans[0]).to.have.property('id', 'rate-plan-1');
+        });
+    });
+
+    it('should return empty object if no rate plans are associated', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-2222/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const ratePlans = Object.values(res.body);
+          expect(ratePlans.length).to.be.eql(0);
+        });
+    });
+
+    it('should return 404 for non existing hotel', async () => {
+      await request(server)
+        .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-2222/ratePlans')
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);

@@ -99,12 +99,16 @@ const resolveHotelObject = async (hotel, fields) => {
       },
     };
   }
-  const flattenedOffChainData = (flattenObject(plainHotel.dataUri.contents, fields));
-  return mapHotelObjectToResponse({
+  const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, fields);
+  const hotelData = {
     ...flattenedOffChainData.descriptionUri,
     ...(flattenObject(plainHotel, fields)),
     id: hotel.address,
-  });
+  };
+  if (flattenedOffChainData.ratePlansUri) {
+    hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
+  }
+  return mapHotelObjectToResponse(hotelData);
 };
 
 const calculateFields = (fieldsQuery) => {
@@ -120,6 +124,11 @@ const calculateFields = (fieldsQuery) => {
       if (DESCRIPTION_FIELDS.indexOf(firstPart) > -1) {
         return `descriptionUri.${f}`;
       }
+
+      if (firstPart === 'ratePlansUri') {
+        return f;
+      }
+
       if (HOTEL_FIELDS.indexOf(firstPart) > -1) {
         return f;
       }
@@ -180,18 +189,9 @@ const findAll = async (req, res, next) => {
 };
 
 const find = async (req, res, next) => {
-  let { hotelAddress } = req.params;
-  const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
-  const { wt } = res.locals;
-  let hotel;
   try {
-    hotel = await wt.index.getHotel(hotelAddress);
-  } catch (e) {
-    return next(new Http404Error('hotelNotFound', 'Hotel not found'));
-  }
-
-  try {
-    const resolvedHotel = await resolveHotelObject(hotel, calculateFields(fieldsQuery).toFlatten);
+    const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
+    const resolvedHotel = await resolveHotelObject(res.locals.wt.hotel, calculateFields(fieldsQuery).toFlatten);
     if (resolvedHotel.error) {
       return next(new HttpBadGatewayError('hotelNotAccessible', resolvedHotel.error, 'Hotel data is not accessible.'));
     }

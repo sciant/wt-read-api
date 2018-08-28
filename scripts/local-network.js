@@ -34,9 +34,9 @@ const deployIndex = async () => {
   });
 };
 
-const deployFullHotel = async (offChainDataAdapter, index, hotelDescription, ratePlan) => {
+const deployFullHotel = async (offChainDataAdapter, index, hotelDescription, ratePlans) => {
   const descriptionUri = await offChainDataAdapter.upload(hotelDescription);
-  const ratePlansUri = await offChainDataAdapter.upload(ratePlan);
+  const ratePlansUri = await offChainDataAdapter.upload(ratePlans);
   const accounts = await web3.eth.getAccounts();
   const dataUri = await offChainDataAdapter.upload({
     descriptionUri,

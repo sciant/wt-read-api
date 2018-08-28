@@ -6,7 +6,7 @@ servers:
     url: 'http://localhost:3000'
 info:
   description: API for reading hotels from WT
-  version: 1.0.1-current-implementation
+  version: 1.0.1-rate-plans-2
   title: WT reading
 paths:
   /:
@@ -85,6 +85,7 @@ paths:
                 - amenities
                 - managerAddress
                 - updatedAt
+                - cancellationPolicies
       responses:
         '200':
           description: >-
@@ -160,6 +161,8 @@ paths:
                 - amenities
                 - managerAddress
                 - updatedAt
+                - cancellationPolicies
+                - ratePlans
       responses:
         '200':
           description: Hotel object
@@ -184,6 +187,14 @@ paths:
           schema:
             $ref: >-
               https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+        - name: fields
+          in: query
+          required: false
+          description: Additional fields to return
+          schema:
+            type: string
+            enum:
+            - ratePlans
       responses:
         '200':
           description: Room types list
@@ -217,6 +228,14 @@ paths:
           schema:
             $ref: >-
               https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType
+        - name: fields
+          in: query
+          required: false
+          description: Additional fields to return
+          schema:
+            type: string
+            enum:
+            - ratePlans
       responses:
         '200':
           description: Room type with id = `id`
@@ -230,6 +249,69 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  '/hotels/{hotelId}/roomTypes/{roomTypeId}/ratePlans':
+    get:
+      summary: Get availability of the room type `id`
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
+        - name: roomTypeId
+          in: path
+          required: true
+          description: Id of room type
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+      responses:
+        '200':
+          description: Rate plans for the room type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatePlansResponse'
+  '/hotels/{hotelId}/ratePlans':
+    get:
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+      responses:
+        '200':
+          description: Rate plans for the hotel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatePlansResponse'
+                
+  '/hotels/{hotelId}/ratePlans/{ratePlanId}':
+    get:
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+        - name: ratePlanId
+          in: path
+          required: true
+          description: Id of rate plan
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+      responses:
+        '200':
+          description: Rate plan details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatePlanResponse'                
+
 components:
   responses:
     InvalidRequestError:
@@ -269,24 +351,62 @@ components:
             identifies the errorring record.
     HotelListItem:
       allOf:
-        - $ref: >-
-            https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescriptionBase
+        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescriptionBase'
         - type: object
           required:
-            - id
+          - id
           properties:
             id:
-              $ref: >-
-                https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
             managerAddress:
-              $ref: >-
-                https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
+            roomTypes:
+              description: Room types in the hotel
+              $ref: '#/components/schemas/RoomTypesResponse'
     HotelDetail:
-      $ref: >-
-        https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+      allOf:
+      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription'
+      - type: object
+        properties:
+          ratePlans:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans'
+          availability: 
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability'
+          roomTypes:
+            description: Room types in the hotel
+            $ref: '#/components/schemas/RoomTypesResponse'
+    
+    RoomTypesResponse:
+      description: Mapping where keys are id of room types and the values are room types
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/RoomTypeResponse'
     RoomTypeResponse:
-      $ref: >-
-        https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RoomType
+      allOf:
+      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RoomType'
+      - type: object
+        properties:
+          id:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+            description: Vendor room type ID (should be unique for hotel)
+          availability: 
+            type: array
+            items:
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/AvailabilityForDay'
+              
+    RatePlansResponse:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/RatePlanResponse'
+        
+    RatePlanResponse:
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlan'
+        - type: object
+          properties:
+            id:
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+              description: Vendor rate plan ID (should be unique for hotel)
     Error:
       title: Error
       description: Default schema for errors returned by API.

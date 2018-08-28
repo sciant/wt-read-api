@@ -17,6 +17,8 @@ const DESCRIPTION_FIELDS = [
   'images',
   'amenities',
   'updatedAt',
+  'defaultCancellationAmount',
+  'cancellationPolicies',
 ];
 
 const DEFAULT_PAGE_SIZE = 30;

@@ -1,3 +1,4 @@
+const winston = require('winston');
 const WtJsLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 
@@ -11,7 +12,7 @@ module.exports = {
     },
     offChainDataOptions: {
       adapters: {
-        json: {
+        'in-memory': {
           options: { },
           create: (options) => {
             return new InMemoryAdapter(options);
@@ -20,5 +21,13 @@ module.exports = {
       },
     },
   }),
-  logHttpTraffic: false,
+  logger: winston.createLogger({
+    level: 'warn',
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+        handleExceptions: true,
+      }),
+    ],
+  }),
 };

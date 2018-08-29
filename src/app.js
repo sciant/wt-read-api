@@ -7,7 +7,7 @@ const cors = require('cors');
 const YAML = require('yamljs');
 const app = express();
 const config = require('./config');
-const { HttpError, HttpInternalError, Http404Error } = require('./errors');
+const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
 const { version } = require('../package.json');
 const { hotelsRouter } = require('./routes/hotels');
 
@@ -20,23 +20,20 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Generic middlewares
 app.use(cors());
 app.use(bodyParser.json());
+app.use((err, req, res, next) => {
+  // Catch and handle bodyParser errors.
+  if (err.statusCode === 400 && err.type === 'entity.parse.failed') {
+    return next(new HttpBadRequestError('badRequest', 'Invalid JSON.'));
+  }
+  next(err);
+});
 
 // Logging only when not in test mode
-if (config.logHttpTraffic) {
-  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
-    skip: function (req, res) {
-      return res.statusCode < 400;
-    },
-    stream: process.stderr,
-  }));
-
-  app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
-    skip: function (req, res) {
-      return res.statusCode >= 400;
-    },
-    stream: process.stdout,
-  }));
-}
+app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
+  stream: {
+    write: (msg) => config.logger.info(msg),
+  },
+}));
 
 // Root handler
 app.get('/', (req, res) => {

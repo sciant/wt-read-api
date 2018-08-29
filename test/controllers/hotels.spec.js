@@ -11,7 +11,7 @@ const {
 } = require('../../scripts/local-network');
 const {
   HOTEL_DESCRIPTION,
-  RATE_PLAN,
+  RATE_PLANS,
 } = require('../utils/test-data');
 
 const web3 = require('web3');
@@ -35,6 +35,19 @@ class FakeNiceHotel {
       },
     });
   }
+  toPlainObject () {
+    return {
+      dataUri: {
+        contents: {
+          descriptionUri: {
+            contents: {
+              name: 'nice hotel',
+            },
+          },
+        },
+      },
+    };
+  }
 }
       
 class FakeHotelWithBadOnChainData {
@@ -44,6 +57,9 @@ class FakeHotelWithBadOnChainData {
   get dataIndex () {
     throw new wtJsLibs.errors.RemoteDataReadError('something');
   }
+  toPlainObject () {
+    throw new wtJsLibs.errors.RemoteDataReadError('something');
+  }
 }
       
 class FakeHotelWithBadOffChainData {
@@ -51,6 +67,9 @@ class FakeHotelWithBadOffChainData {
     this.address = `fake-hotel-off-chain-${fakeHotelCounter++}`;
   }
   get dataIndex () {
+    throw new wtJsLibs.errors.StoragePointerError('something');
+  }
+  toPlainObject () {
     throw new wtJsLibs.errors.StoragePointerError('something');
   }
 }
@@ -73,8 +92,8 @@ describe('Hotels', function () {
 
   describe('GET /hotels', () => {
     beforeEach(async () => {
-      hotel0address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('json'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
-      hotel1address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('json'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
+      hotel0address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
+      hotel1address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
     });
 
     it('should return default fields for hotels', async () => {
@@ -206,7 +225,7 @@ describe('Hotels', function () {
           const { items, errors, next } = res.body;
           expect(items.length).to.be.eql(4);
           expect(errors.length).to.be.eql(2);
-          expect(next).to.be.equal(`http://example.com/hotels?limit=4&fields=id,name,location&startWith=${nextNiceHotel.address}`);
+          expect(next).to.be.equal(`http://example.com/hotels?limit=4&fields=id,location,name&startWith=${nextNiceHotel.address}`);
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });
@@ -254,7 +273,7 @@ describe('Hotels', function () {
         .expect((res) => {
           const { items, next } = res.body;
           expect(items.length).to.be.eql(1);
-          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,name,location&startWith=${hotel1address}`);
+          expect(next).to.be.eql(`http://example.com/hotels?limit=1&fields=id,location,name&startWith=${hotel1address}`);
 
           items.forEach(hotel => {
             expect(hotel).to.have.property('id');
@@ -325,7 +344,7 @@ describe('Hotels', function () {
   describe('GET /hotels/:hotelAddress', () => {
     let address;
     beforeEach(async () => {
-      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('json'), indexContract, HOTEL_DESCRIPTION, RATE_PLAN);
+      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
       address = web3.utils.toChecksumAddress(address);
     });
 
@@ -376,6 +395,76 @@ describe('Hotels', function () {
         .set('accept', 'application/json')
         .expect((res) => {
           expect(res.body).to.have.all.keys([...fields, 'id']);
+        })
+        .expect(200);
+    });
+
+    it('should return all the nested fields that a client asks for', async () => {
+      const fields = ['managerAddress', 'name', 'timezone', 'address.postalCode', 'address.line1'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id');
+          expect(res.body).to.have.property('managerAddress');
+          expect(res.body).to.have.property('name');
+          expect(res.body).to.have.property('timezone');
+          expect(res.body).to.have.property('address');
+          expect(res.body.address).to.have.property('postalCode');
+          expect(res.body.address).to.have.property('line1');
+          expect(res.body.address.country).to.be.undefined;
+        })
+        .expect(200);
+    });
+
+    it('should return all nested fields even from an object of objects', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'roomTypes.description'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'id']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.have.property('description');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
+        })
+        .expect(200);
+    });
+
+    it('should return ratePlans if asked for', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'ratePlans.price'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'ratePlans', 'id']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
+          expect(Object.keys(res.body.ratePlans).length).to.be.gt(0);
+          for (let ratePlan in res.body.ratePlans) {
+            expect(res.body.ratePlans[ratePlan]).to.have.property('id');
+            expect(res.body.ratePlans[ratePlan]).to.have.property('price');
+            expect(res.body.ratePlans[ratePlan]).to.not.have.property('description');
+          }
         })
         .expect(200);
     });

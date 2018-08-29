@@ -1,7 +1,10 @@
 const DEFAULT_HOTEL_FIELDS = 'id,location,name,description,contacts,address,currency,images,amenities,updatedAt';
 const DEFAULT_HOTELS_FIELDS = 'id,location,name';
 
-const OBLIGATORY_FIELDS = ['id'];
+const HOTEL_FIELDS = [
+  'manager',
+];
+
 const DESCRIPTION_FIELDS = [
   'name',
   'description',
@@ -14,18 +17,14 @@ const DESCRIPTION_FIELDS = [
   'images',
   'amenities',
   'updatedAt',
-];
-
-const HOTEL_FIELDS = [
-  'manager',
-  'id',
+  'defaultCancellationAmount',
+  'cancellationPolicies',
 ];
 
 const DEFAULT_PAGE_SIZE = 30;
 const MAX_PAGE_SIZE = 300;
 
 module.exports = {
-  OBLIGATORY_FIELDS,
   DESCRIPTION_FIELDS,
   HOTEL_FIELDS,
   DEFAULT_HOTELS_FIELDS,

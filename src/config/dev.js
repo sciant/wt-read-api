@@ -16,7 +16,7 @@ module.exports = {
     },
     offChainDataOptions: {
       adapters: {
-        json: {
+        'in-memory': {
           create: (options) => {
             return new InMemoryAdapter(options);
           },
@@ -41,7 +41,6 @@ module.exports = {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
     currentConfig.logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
-  logHttpTraffic: true,
   logger: winston.createLogger({
     level: 'debug',
     transports: [

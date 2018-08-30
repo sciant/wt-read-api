@@ -7,7 +7,6 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-ENV WT_CONFIG ropsten
 
 CMD ["npm", "start"]
 

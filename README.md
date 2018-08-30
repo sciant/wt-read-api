@@ -52,12 +52,10 @@ You can tweak with the configuration in `src/config/`.
 - You can use it in your local environment by running the following commands:
 ```sh
 $ docker build -t windingtree/wt-read-api .
-$ docker run -p 8080:3000 -d windingtree/wt-read-api
-# Or you can run a different config with
-$ docker run -p 8080:3000 -e WT_CONFIG=dev windingtree/wt-read-api
+$ docker run -p 8080:3000 -e WT_CONFIG=playground windingtree/wt-read-api
 ```
 - After that you can access the wt-read-api on local port `8080`
-- This deployment is using a Ropsten configuration that can be found in `src/config/ropsten`
+- This deployment is using a Ropsten configuration that can be found in `src/config/playground.js`
 
 ## Examples
 ### Get list of hotels

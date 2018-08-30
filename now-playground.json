@@ -1,0 +1,8 @@
+{
+  "name": "playground-wt-read-api",
+  "alias": "playground-api.windingtree.com",
+  "env": {
+    "WT_CONFIG": "playground",
+    "WT_BAD_GATEWAY_CODE": "500"
+  }
+}

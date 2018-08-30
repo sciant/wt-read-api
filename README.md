@@ -1,4 +1,4 @@
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![Greenkeeper badge](https://badges.greenkeeper.io/windingtree/wt-read-api.svg)](https://greenkeeper.io/)
 # WT Read API
 API written in nodejs to fetch information from the Winding Tree platform.
 

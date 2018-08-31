@@ -152,3 +152,8 @@ Request to `/hotels/:address` can fetch off-chain data in a single request. By d
  }
 
 ```
+
+## Publicly available instances
+
+For currently publicly available instances, please see [this
+page](https://github.com/windingtree/wiki/blob/docs/wt-environments/developer-resources.md#publicly-available-wt-deployments).

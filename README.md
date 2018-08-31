@@ -156,4 +156,4 @@ Request to `/hotels/:address` can fetch off-chain data in a single request. By d
 ## Publicly available instances
 
 For currently available public instances of wt-read-api, please see [this
-page](https://github.com/windingtree/wiki/blob/docs/wt-environments/developer-resources.md#publicly-available-wt-deployments).
+page](https://github.com/windingtree/wiki/blob/master/developer-resources.md#publicly-available-wt-deployments).

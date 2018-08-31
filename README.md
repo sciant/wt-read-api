@@ -48,7 +48,7 @@ You can tweak with the configuration in `src/config/`.
 
 ### Running node against Ropsten testnet contract
 
-- For our deployment on https://demo-api.windingtree.com, we use a Docker image.
+- For our deployment on https://playground-api.windingtree.com, we use a Docker image.
 - You can use it in your local environment by running the following commands:
 ```sh
 $ docker build -t windingtree/wt-read-api .

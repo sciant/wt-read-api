@@ -339,6 +339,22 @@ describe('Hotels', function () {
         })
         .expect(404);
     });
+
+    it('should not touch off-chain data if only on-chain data is requested', async () => {
+      const niceHotel = new FakeNiceHotel();
+      const toPlainObjectSpy = sinon.spy(niceHotel, 'toPlainObject');
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([niceHotel, new FakeHotelWithBadOnChainData()]),
+      });
+      await request(server)
+        .get('/hotels?limit=1&fields=id')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(toPlainObjectSpy.callCount).to.be.eql(0);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
   });
 
   describe('GET /hotels/:hotelAddress', () => {

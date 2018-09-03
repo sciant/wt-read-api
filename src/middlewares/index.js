@@ -46,6 +46,20 @@ const handleOnChainErrors = (err, req, res, next) => {
   next(err);
 };
 
+const handleDataFetchingErrors = (err, req, res, next) => {
+  if (!err) {
+    return next();
+  }
+  if (err instanceof WTLibs.errors.RemoteDataReadError) {
+    return next(new HttpBadGatewayError('hotelNotAccessible', err.message, 'Cannot access on-chain data, maybe the deployed smart contract is broken'));
+  }
+  if (err instanceof WTLibs.errors.StoragePointerError) {
+    return next(new HttpBadGatewayError('hotelNotAccessible', err.message, 'Cannot access off-chain data'));
+  }
+  
+  next(err);
+};
+
 /**
  * Resolves a hotel from req.params.hotelAddress
  */
@@ -66,5 +80,6 @@ module.exports = {
   injectWtLibs,
   validateHotelAddress,
   handleOnChainErrors,
+  handleDataFetchingErrors,
   resolveHotel,
 };

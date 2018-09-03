@@ -2,7 +2,8 @@
 const { expect } = require('chai');
 const web3 = require('web3');
 const request = require('supertest');
-const wtJsLibs = require('../../src/services/wt-js-libs');
+const sinon = require('sinon');
+const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
 const {
   deployIndex,
   deployFullHotel,
@@ -11,6 +12,9 @@ const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
 } = require('../utils/test-data');
+const {
+  FakeHotelWithBadOffChainData,
+} = require('../utils/fake-hotels');
 
 describe('Room types', function () {
   let server;
@@ -20,7 +24,7 @@ describe('Room types', function () {
   beforeEach(async () => {
     server = require('../../src/index');
     const config = require('../../src/config');
-    wtLibsInstance = wtJsLibs.getInstance();
+    wtLibsInstance = wtJsLibsWrapper.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
     address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
@@ -65,6 +69,20 @@ describe('Room types', function () {
         .set('accept', 'application/json')
         .expect(404);
     });
+
+    it('should return bad gateway for inaccessible data', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
+      });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.status).to.be.eql(502);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
   });
 
   describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId', () => {
@@ -96,6 +114,20 @@ describe('Room types', function () {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);
+    });
+
+    it('should return bad gateway for inaccessible data', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
+      });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.status).to.be.eql(502);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
     });
   });
 
@@ -130,6 +162,20 @@ describe('Room types', function () {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);
+    });
+
+    it('should return bad gateway for inaccessible data', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
+      });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-2222/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.status).to.be.eql(502);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
     });
   });
 });

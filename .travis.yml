@@ -4,6 +4,7 @@ notifications:
 cache:
   directories:
     - $HOME/.npm
+install: case $TRAVIS_BRANCH in greenkeeper*) npm i;; *) npm ci;; esac;
 jobs:
   include:
   - stage: test

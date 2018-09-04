@@ -76,12 +76,23 @@ const flattenObject = (contents, fields) => {
 };
 
 const resolveHotelObject = async (hotel, fields) => {
-  let plainHotel;
+  let hotelData;
   try {
     if (fields.length) {
-      plainHotel = await hotel.toPlainObject(fields);
+      const plainHotel = await hotel.toPlainObject(fields);
+      const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, fields);
+      hotelData = {
+        ...flattenedOffChainData.descriptionUri,
+        ...(flattenObject(plainHotel, fields)),
+        id: hotel.address,
+      };
+      if (flattenedOffChainData.ratePlansUri) {
+        hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
+      }
     } else {
-      plainHotel = await hotel.toPlainObject();
+      hotelData = {
+        id: hotel.address,
+      };
     }
   } catch (e) {
     let message = 'Cannot get hotel data';
@@ -98,15 +109,6 @@ const resolveHotelObject = async (hotel, fields) => {
         id: hotel.address,
       },
     };
-  }
-  const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, fields);
-  const hotelData = {
-    ...flattenedOffChainData.descriptionUri,
-    ...(flattenObject(plainHotel, fields)),
-    id: hotel.address,
-  };
-  if (flattenedOffChainData.ratePlansUri) {
-    hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
   }
   return mapHotelObjectToResponse(hotelData);
 };

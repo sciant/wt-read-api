@@ -3,7 +3,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const request = require('supertest');
-const wtJsLibs = require('@windingtree/wt-js-libs');
 const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
 const {
   deployIndex,
@@ -13,66 +12,12 @@ const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
 } = require('../utils/test-data');
-
+const {
+  FakeNiceHotel,
+  FakeHotelWithBadOnChainData,
+  FakeHotelWithBadOffChainData,
+} = require('../utils/fake-hotels');
 const web3 = require('web3');
-
-let fakeHotelCounter = 1;
-
-class FakeNiceHotel {
-  constructor () {
-    this.address = `nice-hotel-${fakeHotelCounter++}`;
-  }
-  get dataIndex () {
-    return Promise.resolve({
-      contents: {
-        get descriptionUri () {
-          return Promise.resolve({
-            contents: {
-              name: 'nice hotel',
-            },
-          });
-        },
-      },
-    });
-  }
-  toPlainObject () {
-    return {
-      dataUri: {
-        contents: {
-          descriptionUri: {
-            contents: {
-              name: 'nice hotel',
-            },
-          },
-        },
-      },
-    };
-  }
-}
-      
-class FakeHotelWithBadOnChainData {
-  constructor () {
-    this.address = `fake-hotel-on-chain-${fakeHotelCounter++}`;
-  }
-  get dataIndex () {
-    throw new wtJsLibs.errors.RemoteDataReadError('something');
-  }
-  toPlainObject () {
-    throw new wtJsLibs.errors.RemoteDataReadError('something');
-  }
-}
-      
-class FakeHotelWithBadOffChainData {
-  constructor () {
-    this.address = `fake-hotel-off-chain-${fakeHotelCounter++}`;
-  }
-  get dataIndex () {
-    throw new wtJsLibs.errors.StoragePointerError('something');
-  }
-  toPlainObject () {
-    throw new wtJsLibs.errors.StoragePointerError('something');
-  }
-}
 
 describe('Hotels', function () {
   let server;
@@ -338,6 +283,22 @@ describe('Hotels', function () {
           expect(res.body).to.have.property('code', '#paginationStartWithError');
         })
         .expect(404);
+    });
+
+    it('should not touch off-chain data if only on-chain data is requested', async () => {
+      const niceHotel = new FakeNiceHotel();
+      const toPlainObjectSpy = sinon.spy(niceHotel, 'toPlainObject');
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([niceHotel, new FakeHotelWithBadOnChainData()]),
+      });
+      await request(server)
+        .get('/hotels?limit=1&fields=id')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(toPlainObjectSpy.callCount).to.be.eql(0);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
     });
   });
 

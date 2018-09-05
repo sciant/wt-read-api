@@ -12,6 +12,10 @@ const { version } = require('../package.json');
 const { hotelsRouter } = require('./routes/hotels');
 
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+
+// No need to leak information and waste bandwith with this
+// header.
+app.disable('x-powered-by');
  
 // Swagger docs
 

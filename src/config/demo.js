@@ -14,7 +14,7 @@ module.exports = {
       adapters: {
         'bzz-raw': {
           options: {
-            swarmProviderUrl: 'https://swarm-gateways.net/',
+            swarmProviderUrl: 'https://swarm.windingtree.com/',
           },
           create: (options) => {
             return new SwarmAdapter(options);

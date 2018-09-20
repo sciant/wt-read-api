@@ -11,6 +11,7 @@ const {
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
+  AVAILABILITY,
 } = require('../utils/test-data');
 const {
   FakeNiceHotel,
@@ -305,7 +306,7 @@ describe('Hotels', function () {
   describe('GET /hotels/:hotelAddress', () => {
     let address;
     beforeEach(async () => {
-      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
+      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
       address = web3.utils.toChecksumAddress(address);
     });
 
@@ -426,6 +427,28 @@ describe('Hotels', function () {
             expect(res.body.ratePlans[ratePlan]).to.have.property('price');
             expect(res.body.ratePlans[ratePlan]).to.not.have.property('description');
           }
+        })
+        .expect(200);
+    });
+
+    it('should return availability if asked for', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'availability.updatedAt'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'id', 'availability']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
+          expect(res.body.availability).to.have.nested.property('latestSnapshot.updatedAt');
         })
         .expect(200);
     });

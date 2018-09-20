@@ -89,6 +89,9 @@ const resolveHotelObject = async (hotel, fields) => {
       if (flattenedOffChainData.ratePlansUri) {
         hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
       }
+      if (flattenedOffChainData.availabilityUri) {
+        hotelData.availability = flattenedOffChainData.availabilityUri;
+      }
     } else {
       hotelData = {
         id: hotel.address,
@@ -128,6 +131,10 @@ const calculateFields = (fieldsQuery) => {
       }
 
       if (firstPart === 'ratePlansUri') {
+        return f;
+      }
+
+      if (firstPart === 'availabilityUri') {
         return f;
       }
 

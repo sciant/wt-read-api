@@ -11,6 +11,7 @@ const {
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
+  AVAILABILITY,
 } = require('../utils/test-data');
 const {
   FakeHotelWithBadOffChainData,
@@ -27,7 +28,7 @@ describe('Room types', function () {
     wtLibsInstance = wtJsLibsWrapper.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
-    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
+    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY));
   });
 
   afterEach(() => {
@@ -108,6 +109,20 @@ describe('Room types', function () {
         });
     });
 
+    it('should include availability if fields is present', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111?fields=availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('availability');
+          expect(res.body.availability).to.have.property('updatedAt');
+          expect(res.body.availability).to.have.property('availability');
+          expect(res.body.availability.availability.length).to.be.eql(9);
+        });
+    });
+
     it('should return 404 for non existing room type', async () => {
       await request(server)
         .get(`/hotels/${address}/roomTypes/room-type-0000`)
@@ -170,6 +185,55 @@ describe('Room types', function () {
       });
       await request(server)
         .get(`/hotels/${address}/roomTypes/room-type-2222/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.status).to.be.eql(502);
+          wtJsLibsWrapper.getWTIndex.restore();
+        });
+    });
+  });
+
+  describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId/availability', () => {
+    it('should return availability data', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111/availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('updatedAt');
+          expect(res.body).to.have.property('availability');
+          expect(res.body.availability.length).to.be.eql(9);
+        });
+    });
+
+    it('should return empty object if no availability is associated', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-3333/availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).to.have.property('updatedAt');
+          expect(res.body).to.have.property('availability');
+          expect(res.body.availability.length).to.be.eql(0);
+        });
+    });
+
+    it('should return 404 for non existing hotel', async () => {
+      await request(server)
+        .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-2222/availability')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
+    it('should return bad gateway for inaccessible data', async () => {
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
+      });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-2222/availability`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {

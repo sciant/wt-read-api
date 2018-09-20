@@ -7,6 +7,7 @@ const findAll = async (req, res, next) => {
     for (let ratePlanId in ratePlans) {
       ratePlans[ratePlanId].id = ratePlanId;
     }
+    // TODO handle hotels without rate plans uri
     res.status(200).json(ratePlans);
   } catch (e) {
     next(e);
@@ -23,6 +24,7 @@ const find = async (req, res, next) => {
       return next(new Http404Error('ratePlanNotFound', 'Rate plan not found'));
     }
     ratePlan.id = ratePlanId;
+    // TODO handle hotels without rate plans uri
     res.status(200).json(ratePlan);
   } catch (e) {
     next(e);

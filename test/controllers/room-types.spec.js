@@ -63,6 +63,21 @@ describe('Room types', function () {
         });
     });
 
+    it('should include availability if fields is present', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes?fields=availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.eql(HOTEL_DESCRIPTION.roomTypes);
+          for (let roomType in res.body) {
+            expect(res.body[roomType]).to.have.property('id');
+            expect(res.body[roomType]).to.have.property('availability');
+          }
+          console.log(res.body);
+        });
+    });
+
     it('should return 404 for non existing hotel', async () => {
       await request(server)
         .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-0000')
@@ -179,6 +194,23 @@ describe('Room types', function () {
         .expect(404);
     });
 
+    it('should return 404 for non existing room type', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-0000/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
+    it('should return 404 for a hotel without rate plans', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/roomTypes/room-type-2222/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
     it('should return bad gateway for inaccessible data', async () => {
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
         getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),
@@ -223,6 +255,14 @@ describe('Room types', function () {
     it('should return 404 for non existing hotel', async () => {
       await request(server)
         .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-2222/availability')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
+    it('should return 404 for non existing room type', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-0000/availability`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);

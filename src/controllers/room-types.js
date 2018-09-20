@@ -80,7 +80,16 @@ const find = async (req, res, next) => {
 const findRatePlans = async (req, res, next) => {
   let { roomTypeId } = req.params;
   try {
-    let plainHotel = await res.locals.wt.hotel.toPlainObject(['ratePlansUri']);
+    let plainHotel = await getPlainHotel(res.locals.wt.hotel, ['ratePlans']);
+    
+    let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
+    let roomType = roomTypes[roomTypeId];
+    if (!roomType) {
+      return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
+    }
+    if (!plainHotel.dataUri.contents.ratePlansUri) {
+      return next(new Http404Error('noRatePlans', 'No ratePlansUri specified.'));
+    }
     const ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
     res.status(200).json(ratePlans);
   } catch (e) {
@@ -91,7 +100,13 @@ const findRatePlans = async (req, res, next) => {
 const findAvailability = async (req, res, next) => {
   let { roomTypeId } = req.params;
   try {
-    let plainHotel = await res.locals.wt.hotel.toPlainObject(['availabilityUri']);
+    let plainHotel = await getPlainHotel(res.locals.wt.hotel, ['availability']);
+    
+    let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
+    let roomType = roomTypes[roomTypeId];
+    if (!roomType) {
+      return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
+    }
     if (!plainHotel.dataUri.contents.availabilityUri) {
       return next(new Http404Error('noAvailability', 'No availabilityUri specified.'));
     }

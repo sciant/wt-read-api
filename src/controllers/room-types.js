@@ -16,7 +16,9 @@ const detectAvailability = (roomTypeId, availabilityObject) => {
   let availability = availabilityObject && availabilityObject.latestSnapshot.availability[roomTypeId];
   return {
     updatedAt: availabilityObject && availabilityObject.latestSnapshot.updatedAt,
-    availability: availability || [],
+    availability: {
+      [roomTypeId]: availability || [],
+    },
   };
 };
 
@@ -41,6 +43,9 @@ const findAll = async (req, res, next) => {
       roomTypes[roomTypeId].id = roomTypeId;
       if (fieldsQuery.indexOf('ratePlans') > -1) {
         roomTypes[roomTypeId].ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
+      }
+      if (fieldsQuery.indexOf('availability') > -1) {
+        roomTypes[roomTypeId].availability = detectAvailability(roomTypeId, plainHotel.dataUri.contents.availabilityUri.contents);
       }
     }
     res.status(200).json(roomTypes);

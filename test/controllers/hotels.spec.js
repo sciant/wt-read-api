@@ -448,7 +448,7 @@ describe('Hotels', function () {
             expect(res.body.roomTypes[roomType]).to.have.property('name');
             expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
           }
-          expect(res.body.availability).to.have.nested.property('latestSnapshot.updatedAt');
+          expect(res.body.availability).to.have.property('updatedAt');
         })
         .expect(200);
     });

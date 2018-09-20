@@ -118,8 +118,8 @@ describe('Room types', function () {
           expect(res.body).to.have.property('id', 'room-type-1111');
           expect(res.body).to.have.property('availability');
           expect(res.body.availability).to.have.property('updatedAt');
-          expect(res.body.availability).to.have.property('availability');
-          expect(res.body.availability.availability.length).to.be.eql(9);
+          expect(res.body.availability).to.have.nested.property('availability.room-type-1111');
+          expect(res.body.availability.availability['room-type-1111'].length).to.be.eql(9);
         });
     });
 
@@ -202,8 +202,8 @@ describe('Room types', function () {
         .set('accept', 'application/json')
         .expect((res) => {
           expect(res.body).to.have.property('updatedAt');
-          expect(res.body).to.have.property('availability');
-          expect(res.body.availability.length).to.be.eql(9);
+          expect(res.body).to.have.nested.property('availability.room-type-1111');
+          expect(res.body.availability['room-type-1111'].length).to.be.eql(9);
         });
     });
 
@@ -215,8 +215,8 @@ describe('Room types', function () {
         .expect(200)
         .expect((res) => {
           expect(res.body).to.have.property('updatedAt');
-          expect(res.body).to.have.property('availability');
-          expect(res.body.availability.length).to.be.eql(0);
+          expect(res.body).to.have.nested.property('availability.room-type-3333');
+          expect(res.body.availability['room-type-3333'].length).to.be.eql(0);
         });
     });
 

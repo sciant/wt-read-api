@@ -61,6 +61,15 @@ describe('Rate plans', function () {
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });
+
+    it('should return 404 if hotel has no rate plans', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
   });
 
   describe('GET /hotels/:hotelAddress/ratePlans/:ratePlanId', () => {
@@ -77,6 +86,15 @@ describe('Rate plans', function () {
     it('should return 404', async () => {
       await request(server)
         .get(`/hotels/${address}/ratePlans/rate-plan-0000`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
+    it('should return 404 if hotel has no rate plans', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/ratePlans/rate-plan-0000`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);

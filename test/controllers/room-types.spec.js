@@ -228,6 +228,15 @@ describe('Room types', function () {
         .expect(404);
     });
 
+    it('should return 404 for a hotel without availability', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
+      await request(server)
+        .get(`/hotels/${hotel}/roomTypes/room-type-2222/availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
     it('should return bad gateway for inaccessible data', async () => {
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
         getHotel: sinon.stub().resolves(new FakeHotelWithBadOffChainData()),

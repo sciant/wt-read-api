@@ -6,7 +6,7 @@ servers:
     url: 'http://localhost:3000'
 info:
   description: API for reading hotels from WT
-  version: 1.1.0
+  version: 'will-be-set-at-runtime'
   title: WT reading
 paths:
   /:

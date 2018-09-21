@@ -11,13 +11,13 @@ const {
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
+  AVAILABILITY,
 } = require('../utils/test-data');
 const {
   FakeNiceHotel,
   FakeHotelWithBadOnChainData,
   FakeHotelWithBadOffChainData,
 } = require('../utils/fake-hotels');
-const web3 = require('web3');
 
 describe('Hotels', function () {
   let server;
@@ -305,8 +305,7 @@ describe('Hotels', function () {
   describe('GET /hotels/:hotelAddress', () => {
     let address;
     beforeEach(async () => {
-      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
-      address = web3.utils.toChecksumAddress(address);
+      address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
     });
 
     it('should return default fields', async () => {
@@ -430,6 +429,28 @@ describe('Hotels', function () {
         .expect(200);
     });
 
+    it('should return availability if asked for', async () => {
+      const fields = ['name', 'timezone', 'roomTypes.name', 'availability.updatedAt'];
+      const query = `fields=${fields.join()}`;
+
+      await request(server)
+        .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys(['name', 'timezone', 'roomTypes', 'id', 'availability']);
+          expect(res.body.address).to.be.undefined;
+          expect(Object.keys(res.body.roomTypes).length).to.be.gt(0);
+          for (let roomType in res.body.roomTypes) {
+            expect(res.body.roomTypes[roomType]).to.have.property('id');
+            expect(res.body.roomTypes[roomType]).to.have.property('name');
+            expect(res.body.roomTypes[roomType]).to.not.have.property('amenities');
+          }
+          expect(res.body.availability).to.have.property('updatedAt');
+        })
+        .expect(200);
+    });
+
     it('should return 502 when on-chain data is inaccessible', async () => {
       sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
         getHotel: sinon.stub().resolves(new FakeHotelWithBadOnChainData()),
@@ -493,6 +514,44 @@ describe('Hotels', function () {
           expect(res.body).to.have.property('code', '#hotelChecksum');
         })
         .expect(422);
+    });
+  });
+
+  describe('GET /hotels/:hotelAddress/dataUri', () => {
+    it('should return all fields', async () => {
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
+      await request(server)
+        .get(`/hotels/${hotel}/dataUris`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('address', hotel);
+          expect(res.body).to.have.property('dataUri');
+          expect(res.body).to.have.property('descriptionUri');
+          expect(res.body).to.have.property('ratePlansUri');
+          expect(res.body).to.have.property('availabilityUri');
+          expect(res.body.dataUri).to.match(/^in-memory:\/\//);
+          expect(res.body.descriptionUri).to.match(/^in-memory:\/\//);
+          expect(res.body.ratePlansUri).to.match(/^in-memory:\/\//);
+          expect(res.body.availabilityUri).to.match(/^in-memory:\/\//);
+        })
+        .expect(200);
+    });
+
+    it('should not return unspecified optional fields', async () => {
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
+      await request(server)
+        .get(`/hotels/${hotel}/dataUris`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('address', hotel);
+          expect(res.body).to.have.property('dataUri');
+          expect(res.body).to.have.property('descriptionUri');
+          expect(res.body).to.not.have.property('ratePlansUri');
+          expect(res.body).to.not.have.property('availabilityUri');
+        })
+        .expect(200);
     });
   });
 });

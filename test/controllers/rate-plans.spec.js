@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 const { expect } = require('chai');
-const web3 = require('web3');
 const request = require('supertest');
 const sinon = require('sinon');
 const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
@@ -27,7 +26,7 @@ describe('Rate plans', function () {
     wtLibsInstance = wtJsLibsWrapper.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
-    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
+    address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
   });
 
   afterEach(() => {
@@ -61,6 +60,15 @@ describe('Rate plans', function () {
           wtJsLibsWrapper.getWTIndex.restore();
         });
     });
+
+    it('should return 404 if hotel has no rate plans', async () => {
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
+      await request(server)
+        .get(`/hotels/${hotel}/ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
   });
 
   describe('GET /hotels/:hotelAddress/ratePlans/:ratePlanId', () => {
@@ -77,6 +85,15 @@ describe('Rate plans', function () {
     it('should return 404', async () => {
       await request(server)
         .get(`/hotels/${address}/ratePlans/rate-plan-0000`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(404);
+    });
+
+    it('should return 404 if hotel has no rate plans', async () => {
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
+      await request(server)
+        .get(`/hotels/${hotel}/ratePlans/rate-plan-0000`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect(404);

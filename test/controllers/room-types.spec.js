@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 const { expect } = require('chai');
-const web3 = require('web3');
 const request = require('supertest');
 const sinon = require('sinon');
 const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
@@ -28,7 +27,7 @@ describe('Room types', function () {
     wtLibsInstance = wtJsLibsWrapper.getInstance();
     indexContract = await deployIndex();
     config.wtIndexAddress = indexContract.address;
-    address = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY));
+    address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
   });
 
   afterEach(() => {
@@ -124,7 +123,7 @@ describe('Room types', function () {
     });
 
     it('should return empty ratePlans if hotel does not have ratePlansUri', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
       await request(server)
         .get(`/hotels/${hotel}/roomTypes/room-type-1111?fields=ratePlans`)
         .set('content-type', 'application/json')
@@ -151,7 +150,7 @@ describe('Room types', function () {
     });
 
     it('should return empty availability if hotel does not have ratePlansUri', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
       await request(server)
         .get(`/hotels/${hotel}/roomTypes/room-type-1111?fields=availability`)
         .set('content-type', 'application/json')
@@ -228,7 +227,7 @@ describe('Room types', function () {
     });
 
     it('should return 404 for a hotel without rate plans', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
       await request(server)
         .get(`/hotels/${hotel}/roomTypes/room-type-2222/ratePlans`)
         .set('content-type', 'application/json')
@@ -294,7 +293,7 @@ describe('Room types', function () {
     });
 
     it('should return 404 for a hotel without availability', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS);
       await request(server)
         .get(`/hotels/${hotel}/roomTypes/room-type-2222/availability`)
         .set('content-type', 'application/json')

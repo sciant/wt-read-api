@@ -18,7 +18,6 @@ const {
   FakeHotelWithBadOnChainData,
   FakeHotelWithBadOffChainData,
 } = require('../utils/fake-hotels');
-const web3 = require('web3');
 
 describe('Hotels', function () {
   let server;
@@ -307,7 +306,6 @@ describe('Hotels', function () {
     let address;
     beforeEach(async () => {
       address = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
-      address = web3.utils.toChecksumAddress(address);
     });
 
     it('should return default fields', async () => {
@@ -521,7 +519,7 @@ describe('Hotels', function () {
 
   describe('GET /hotels/:hotelAddress/dataUri', () => {
     it('should return all fields', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
       await request(server)
         .get(`/hotels/${hotel}/dataUris`)
         .set('content-type', 'application/json')
@@ -541,7 +539,7 @@ describe('Hotels', function () {
     });
 
     it('should not return unspecified optional fields', async () => {
-      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      const hotel = await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION);
       await request(server)
         .get(`/hotels/${hotel}/dataUris`)
         .set('content-type', 'application/json')

@@ -211,7 +211,23 @@ const find = async (req, res, next) => {
   }
 };
 
+const dataUris = async (req, res, next) => {
+  try {
+    const resolvedHotel = await res.locals.wt.hotel.toPlainObject([]);
+    return res.status(200).json({
+      address: resolvedHotel.address,
+      dataUri: resolvedHotel.dataUri.ref,
+      descriptionUri: resolvedHotel.dataUri.contents.descriptionUri,
+      ratePlansUri: resolvedHotel.dataUri.contents.ratePlansUri,
+      availabilityUri: resolvedHotel.dataUri.contents.availabilityUri,
+    });
+  } catch (e) {
+    return next(new HttpBadGatewayError('hotelNotAccessible', e.message, 'Hotel data is not accessible.'));
+  }
+};
+
 module.exports = {
   find,
   findAll,
+  dataUris,
 };

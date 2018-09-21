@@ -6,7 +6,7 @@ servers:
     url: 'http://localhost:3000'
 info:
   description: API for reading hotels from WT
-  version: 1.0.2
+  version: 1.1.0
   title: WT reading
 paths:
   /:
@@ -171,6 +171,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HotelDetail'
+        '400':
+          $ref: '#/components/responses/InvalidRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/hotels/{hotelId}/dataUris':
+    get:
+      summary: List of on-chain and off-chain identifiers where to reach all of the hotel's data.
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: >-
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+      responses:
+        '200':
+          description: Hotel data uris.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataUrisResponse'
         '400':
           $ref: '#/components/responses/InvalidRequestError'
         '404':
@@ -459,6 +483,22 @@ components:
 
     AvailabilityResponse:
       $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/AvailabilitySnapshot'
+
+    DataUrisResponse:
+      description: Collection of idnetifiers required to look up hotel data
+      required:
+        - address
+        - dataUri
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/HotelDataIndex'
+        - type: object
+          properties:
+            address:
+              description: Ethereum address of the hotel
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
+            dataUri:
+              description: URI of the Hotel data index (pointing off-chain)
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/UriType'
 
     Error:
       title: Error

@@ -518,4 +518,42 @@ describe('Hotels', function () {
         .expect(422);
     });
   });
+
+  describe('GET /hotels/:hotelAddress/dataUri', () => {
+    it('should return all fields', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY));
+      await request(server)
+        .get(`/hotels/${hotel}/dataUris`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('address', hotel);
+          expect(res.body).to.have.property('dataUri');
+          expect(res.body).to.have.property('descriptionUri');
+          expect(res.body).to.have.property('ratePlansUri');
+          expect(res.body).to.have.property('availabilityUri');
+          expect(res.body.dataUri).to.match(/^in-memory:\/\//);
+          expect(res.body.descriptionUri).to.match(/^in-memory:\/\//);
+          expect(res.body.ratePlansUri).to.match(/^in-memory:\/\//);
+          expect(res.body.availabilityUri).to.match(/^in-memory:\/\//);
+        })
+        .expect(200);
+    });
+
+    it('should not return unspecified optional fields', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/dataUris`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('address', hotel);
+          expect(res.body).to.have.property('dataUri');
+          expect(res.body).to.have.property('descriptionUri');
+          expect(res.body).to.not.have.property('ratePlansUri');
+          expect(res.body).to.not.have.property('availabilityUri');
+        })
+        .expect(200);
+    });
+  });
 });

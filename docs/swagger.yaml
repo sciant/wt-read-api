@@ -6,7 +6,7 @@ servers:
     url: 'http://localhost:3000'
 info:
   description: API for reading hotels from WT
-  version: 1.0.1-rate-plans-2
+  version: 1.0.2
   title: WT reading
 paths:
   /:
@@ -55,7 +55,7 @@ paths:
           required: false
           schema:
             $ref: >-
-              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
         - name: fields
           in: query
           description: >
@@ -113,7 +113,7 @@ paths:
                       Uri to next page of records. When there's no next page,
                       this is not set.
                     $ref: >-
-                      https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/UriType
+                      https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/UriType
         '400':
           $ref: '#/components/responses/InvalidRequestError'
         '500':
@@ -128,7 +128,7 @@ paths:
           description: Hotel Id as returned by `GET /hotel`
           schema:
             $ref: >-
-              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
         - name: fields
           required: false
           in: query
@@ -163,6 +163,7 @@ paths:
                 - updatedAt
                 - cancellationPolicies
                 - ratePlans
+                - availability
       responses:
         '200':
           description: Hotel object
@@ -186,7 +187,7 @@ paths:
           description: Hotel Id as returned by `GET /hotel`
           schema:
             $ref: >-
-              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
         - name: fields
           in: query
           required: false
@@ -195,6 +196,7 @@ paths:
             type: string
             enum:
             - ratePlans
+            - availability
       responses:
         '200':
           description: Room types list
@@ -220,14 +222,14 @@ paths:
           description: Hotel Id as returned by `GET /hotel`
           schema:
             $ref: >-
-              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType
         - name: roomTypeId
           in: path
           required: true
           description: Id of room type
           schema:
             $ref: >-
-              https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType
+              https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType
         - name: fields
           in: query
           required: false
@@ -236,6 +238,7 @@ paths:
             type: string
             enum:
             - ratePlans
+            - availability
       responses:
         '200':
           description: Room type with id = `id`
@@ -251,20 +254,20 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/hotels/{hotelId}/roomTypes/{roomTypeId}/ratePlans':
     get:
-      summary: Get availability of the room type `id`
+      summary: Get rate plans of the room type `id`
       parameters:
         - name: hotelId
           in: path
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
         - name: roomTypeId
           in: path
           required: true
           description: Id of room type
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
       responses:
         '200':
           description: Rate plans for the room type
@@ -272,6 +275,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RatePlansResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/hotels/{hotelId}/roomTypes/{roomTypeId}/availability':
+    get:
+      summary: Get availability of the room type `id`. The availability field contains only a single key with room type id.
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
+        - name: roomTypeId
+          in: path
+          required: true
+          description: Id of room type
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+      responses:
+        '200':
+          description: Availability for the room type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/hotels/{hotelId}/availability':
+    get:
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          description: Hotel Id as returned by `GET /hotel`
+          schema:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+      responses:
+        '200':
+          description: Availability data for the hotel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/hotels/{hotelId}/ratePlans':
     get:
       parameters:
@@ -280,7 +328,7 @@ paths:
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
       responses:
         '200':
           description: Rate plans for the hotel
@@ -288,7 +336,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RatePlansResponse'
-                
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/hotels/{hotelId}/ratePlans/{ratePlanId}':
     get:
       parameters:
@@ -297,13 +346,13 @@ paths:
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
         - name: ratePlanId
           in: path
           required: true
           description: Id of rate plan
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
       responses:
         '200':
           description: Rate plan details
@@ -311,6 +360,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RatePlanResponse'                
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 
 components:
   responses:
@@ -351,27 +402,27 @@ components:
             identifies the errorring record.
     HotelListItem:
       allOf:
-        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescriptionBase'
+        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/HotelDescriptionBase'
         - type: object
           required:
           - id
           properties:
             id:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
             managerAddress:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
             roomTypes:
               description: Room types in the hotel
               $ref: '#/components/schemas/RoomTypesResponse'
     HotelDetail:
       allOf:
-      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription'
+      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/HotelDescription'
       - type: object
         properties:
           ratePlans:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/RatePlans'
           availability: 
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/AvailabilitySnapshot'
           roomTypes:
             description: Room types in the hotel
             $ref: '#/components/schemas/RoomTypesResponse'
@@ -383,16 +434,14 @@ components:
         $ref: '#/components/schemas/RoomTypeResponse'
     RoomTypeResponse:
       allOf:
-      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RoomType'
+      - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/RoomType'
       - type: object
         properties:
           id:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
             description: Vendor room type ID (should be unique for hotel)
           availability: 
-            type: array
-            items:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/AvailabilityForDay'
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/AvailabilitySnapshot'
               
     RatePlansResponse:
       type: object
@@ -401,12 +450,16 @@ components:
         
     RatePlanResponse:
       allOf:
-        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlan'
+        - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/RatePlan'
         - type: object
           properties:
             id:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/ObjectIdType'
               description: Vendor rate plan ID (should be unique for hotel)
+
+    AvailabilityResponse:
+      $ref: 'https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/AvailabilitySnapshot'
+
     Error:
       title: Error
       description: Default schema for errors returned by API.

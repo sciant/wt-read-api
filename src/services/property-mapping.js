@@ -23,6 +23,7 @@ const mapHotelObjectToResponse = (hotel) => {
 const fieldMapping = {
   managerAddress: 'manager',
   ratePlans: 'ratePlansUri',
+  availability: 'availabilityUri',
 };
 
 const mapHotelFieldsFromQuery = (fields) => {

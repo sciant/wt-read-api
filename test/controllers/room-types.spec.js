@@ -74,7 +74,6 @@ describe('Room types', function () {
             expect(res.body[roomType]).to.have.property('id');
             expect(res.body[roomType]).to.have.property('availability');
           }
-          console.log(res.body);
         });
     });
 
@@ -102,7 +101,7 @@ describe('Room types', function () {
   });
 
   describe('GET /hotels/:hotelAddress/roomTypes/:roomTypeId', () => {
-    it('should return a room type ', async () => {
+    it('should return a room type', async () => {
       await request(server)
         .get(`/hotels/${address}/roomTypes/room-type-1111`)
         .set('content-type', 'application/json')
@@ -124,6 +123,19 @@ describe('Room types', function () {
         });
     });
 
+    it('should return empty ratePlans if hotel does not have ratePlansUri', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/roomTypes/room-type-1111?fields=ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('ratePlans');
+          expect(Object.values(res.body.ratePlans).length).to.be.eql(0);
+        });
+    });
+
     it('should include availability if fields is present', async () => {
       await request(server)
         .get(`/hotels/${address}/roomTypes/room-type-1111?fields=availability`)
@@ -135,6 +147,19 @@ describe('Room types', function () {
           expect(res.body.availability).to.have.property('updatedAt');
           expect(res.body.availability).to.have.nested.property('availability.room-type-1111');
           expect(res.body.availability.availability['room-type-1111'].length).to.be.eql(9);
+        });
+    });
+
+    it('should return empty availability if hotel does not have ratePlansUri', async () => {
+      const hotel = web3.utils.toChecksumAddress(await deployFullHotel(await wtLibsInstance.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION));
+      await request(server)
+        .get(`/hotels/${hotel}/roomTypes/room-type-1111?fields=availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('availability');
+          expect(Object.keys(res.body.availability).length).to.be.eql(0);
         });
     });
 

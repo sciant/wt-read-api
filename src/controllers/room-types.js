@@ -34,6 +34,24 @@ const getPlainHotel = async (hotel, fieldsQuery) => {
   return hotel.toPlainObject(resolvedFields);
 };
 
+const setAdditionalFields = (roomType, plainHotel, fieldsQuery) => {
+  if (fieldsQuery.indexOf('ratePlans') > -1) {
+    if (plainHotel.dataUri.contents.ratePlansUri) {
+      roomType.ratePlans = detectRatePlans(roomType.id, plainHotel.dataUri.contents.ratePlansUri.contents);
+    } else {
+      roomType.ratePlans = [];
+    }
+  }
+  if (fieldsQuery.indexOf('availability') > -1) {
+    if (plainHotel.dataUri.contents.availabilityUri) {
+      roomType.availability = detectAvailability(roomType.id, plainHotel.dataUri.contents.availabilityUri.contents);
+    } else {
+      roomType.availability = {};
+    }
+  }
+  return roomType;
+};
+
 const findAll = async (req, res, next) => {
   const fieldsQuery = (req.query.fields && req.query.fields.split(',')) || [];
   try {
@@ -41,12 +59,7 @@ const findAll = async (req, res, next) => {
     let roomTypes = plainHotel.dataUri.contents.descriptionUri.contents.roomTypes;
     for (let roomTypeId in roomTypes) {
       roomTypes[roomTypeId].id = roomTypeId;
-      if (fieldsQuery.indexOf('ratePlans') > -1) {
-        roomTypes[roomTypeId].ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
-      }
-      if (fieldsQuery.indexOf('availability') > -1) {
-        roomTypes[roomTypeId].availability = detectAvailability(roomTypeId, plainHotel.dataUri.contents.availabilityUri.contents);
-      }
+      roomTypes[roomTypeId] = setAdditionalFields(roomTypes[roomTypeId], plainHotel, fieldsQuery);
     }
     res.status(200).json(roomTypes);
   } catch (e) {
@@ -65,12 +78,7 @@ const find = async (req, res, next) => {
       return next(new Http404Error('roomTypeNotFound', 'Room type not found'));
     }
     roomType.id = roomTypeId;
-    if (fieldsQuery.indexOf('ratePlans') > -1) {
-      roomType.ratePlans = detectRatePlans(roomTypeId, plainHotel.dataUri.contents.ratePlansUri.contents);
-    }
-    if (fieldsQuery.indexOf('availability') > -1) {
-      roomType.availability = detectAvailability(roomTypeId, plainHotel.dataUri.contents.availabilityUri.contents);
-    }
+    roomType = setAdditionalFields(roomType, plainHotel, fieldsQuery);
     res.status(200).json(roomType);
   } catch (e) {
     next(e);

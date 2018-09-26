@@ -13,6 +13,7 @@ const { hotelsRouter } = require('./routes/hotels');
 
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
 swaggerDocument.servers = [{ url: config.baseUrl }];
+swaggerDocument.info.version = version;
 
 // No need to leak information and waste bandwith with this
 // header.

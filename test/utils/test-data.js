@@ -115,12 +115,12 @@ const RATE_PLANS = {
     ],
     'updatedAt': '2018-07-09T09:22:54.548Z',
     'availableForReservation': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
+      'from': '2018-07-08',
+      'to': '2019-07-09',
     },
     'availableForTravel': {
       'from': '2018-07-09',
-      'to': '2018-07-09',
+      'to': '2019-07-09',
     },
     'modifiers': [
       {
@@ -154,12 +154,12 @@ const RATE_PLANS = {
     ],
     'updatedAt': '2018-07-09T09:22:54.548Z',
     'availableForReservation': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
+      'from': '2018-07-08',
+      'to': '2019-07-09',
     },
     'availableForTravel': {
       'from': '2018-07-09',
-      'to': '2018-07-09',
+      'to': '2019-07-09',
     },
     'modifiers': [
       {

@@ -47,6 +47,7 @@ const deployFullHotel = async (offChainDataAdapter, index, hotelDescription, rat
   if (availability) {
     indexFile['availabilityUri'] = await offChainDataAdapter.upload(availability);
   }
+  indexFile.notificationsUri = 'http://notifications.example';
   const dataUri = await offChainDataAdapter.upload(indexFile);
 
   const registerResult = await index.registerHotel(dataUri, {

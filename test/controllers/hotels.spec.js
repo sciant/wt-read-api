@@ -190,6 +190,7 @@ describe('Hotels', function () {
         'images',
         'amenities',
         'updatedAt',
+        'notificationsUri',
       ];
       const query = `fields=${fields.join()}`;
 

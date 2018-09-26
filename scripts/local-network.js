@@ -34,14 +34,21 @@ const deployIndex = async () => {
   });
 };
 
-const deployFullHotel = async (offChainDataAdapter, index, hotelDescription, ratePlans) => {
-  const descriptionUri = await offChainDataAdapter.upload(hotelDescription);
-  const ratePlansUri = await offChainDataAdapter.upload(ratePlans);
+const deployFullHotel = async (offChainDataAdapter, index, hotelDescription, ratePlans, availability) => {
   const accounts = await web3.eth.getAccounts();
-  const dataUri = await offChainDataAdapter.upload({
-    descriptionUri,
-    ratePlansUri,
-  });
+  const indexFile = {};
+
+  if (hotelDescription) {
+    indexFile['descriptionUri'] = await offChainDataAdapter.upload(hotelDescription);
+  }
+  if (ratePlans) {
+    indexFile['ratePlansUri'] = await offChainDataAdapter.upload(ratePlans);
+  }
+  if (availability) {
+    indexFile['availabilityUri'] = await offChainDataAdapter.upload(availability);
+  }
+  indexFile.notificationsUri = 'http://notifications.example';
+  const dataUri = await offChainDataAdapter.upload(indexFile);
 
   const registerResult = await index.registerHotel(dataUri, {
     from: accounts[0],

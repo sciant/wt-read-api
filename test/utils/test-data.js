@@ -115,12 +115,12 @@ const RATE_PLANS = {
     ],
     'updatedAt': '2018-07-09T09:22:54.548Z',
     'availableForReservation': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
+      'from': '2018-07-08',
+      'to': '2019-07-09',
     },
     'availableForTravel': {
       'from': '2018-07-09',
-      'to': '2018-07-09',
+      'to': '2019-07-09',
     },
     'modifiers': [
       {
@@ -154,12 +154,12 @@ const RATE_PLANS = {
     ],
     'updatedAt': '2018-07-09T09:22:54.548Z',
     'availableForReservation': {
-      'from': '2018-07-09',
-      'to': '2018-07-09',
+      'from': '2018-07-08',
+      'to': '2019-07-09',
     },
     'availableForTravel': {
       'from': '2018-07-09',
-      'to': '2018-07-09',
+      'to': '2019-07-09',
     },
     'modifiers': [
       {
@@ -185,7 +185,116 @@ const RATE_PLANS = {
   },
 };
 
+const AVAILABILITY = {
+  'latestSnapshot': {
+    'updatedAt': '2018-07-09T09:22:54.548Z',
+    'availability': {
+      'room-type-1111': [
+        {
+          'date': '2018-07-07',
+          'quantity': 8,
+          'restrictions': {
+            'noArrival': true,
+          },
+        },
+        {
+          'date': '2018-07-08',
+          'quantity': 7,
+          'restrictions': {
+            'noDeparture': true,
+          },
+        },
+        {
+          'date': '2018-07-09',
+          'quantity': 1,
+        },
+        {
+          'date': '2018-07-10',
+          'quantity': 5,
+        },
+        {
+          'date': '2018-07-11',
+          'quantity': 4,
+        },
+        {
+          'date': '2018-07-12',
+          'quantity': 10,
+        },
+        {
+          'date': '2018-07-13',
+          'quantity': 11,
+        },
+        {
+          'date': '2018-07-14',
+          'quantity': 6,
+          'restrictions': {
+            'noArrival': true,
+          },
+        },
+        {
+          'date': '2018-07-15',
+          'quantity': 7,
+          'restrictions': {
+            'noDeparture': true,
+          },
+        },
+      ],
+      'room-type-2222': [
+        {
+          'date': '2018-07-07',
+          'quantity': 2,
+          'restrictions': {
+            'noArrival': true,
+          },
+        },
+        {
+          'date': '2018-07-08',
+          'quantity': 2,
+          'restrictions': {
+            'noDeparture': true,
+          },
+        },
+        {
+          'date': '2018-07-09',
+          'quantity': 2,
+        },
+        {
+          'date': '2018-07-10',
+          'quantity': 1,
+        },
+        {
+          'date': '2018-07-11',
+          'quantity': 0,
+        },
+        {
+          'date': '2018-07-12',
+          'quantity': 0,
+        },
+        {
+          'date': '2018-07-13',
+          'quantity': 0,
+        },
+        {
+          'date': '2018-07-14',
+          'quantity': 0,
+          'restrictions': {
+            'noArrival': true,
+          },
+        },
+        {
+          'date': '2018-07-15',
+          'quantity': 0,
+          'restrictions': {
+            'noDeparture': true,
+          },
+        },
+      ],
+    },
+  },
+};
+
 module.exports = {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
+  AVAILABILITY,
 };

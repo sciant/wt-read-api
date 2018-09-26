@@ -333,21 +333,8 @@ describe('Hotels', function () {
     });
 
     it('should return all fields that a client asks for', async () => {
-      const fields = ['name', 'location'];
-      const query = `fields=${fields.join()}`;
-
-      await request(server)
-        .get(`/hotels/${address}?${query}`)
-        .set('content-type', 'application/json')
-        .set('accept', 'application/json')
-        .expect((res) => {
-          expect(res.body).to.have.all.keys([...fields, 'id']);
-        })
-        .expect(200);
-    });
-
-    it('should return all fields that a client asks for', async () => {
-      const fields = ['managerAddress'];
+      // defaultCancellationAmount was problematic when set to 0
+      const fields = ['name', 'location', 'managerAddress', 'defaultCancellationAmount'];
       const query = `fields=${fields.join()}`;
 
       await request(server)

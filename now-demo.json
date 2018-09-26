@@ -2,7 +2,6 @@
   "name": "demo-wt-read-api",
   "alias": "demo-api.windingtree.com",
   "env": {
-    "WT_CONFIG": "demo",
-    "WT_BAD_GATEWAY_CODE": "500"
+    "WT_CONFIG": "demo"
   }
 }

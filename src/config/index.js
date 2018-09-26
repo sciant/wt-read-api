@@ -11,8 +11,4 @@ module.exports = Object.assign({
       }),
     ],
   }),
-  // Allow the 502 status code to be overridden with a custom
-  // one as emitting this code is sometimes problematic (e.g.
-  // behind cloudflare's servers).
-  badGatewayStatus: process.env.WT_BAD_GATEWAY_CODE || 502,
 }, require(`./${env}`));

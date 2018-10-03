@@ -24,6 +24,7 @@ module.exports = {
         'bzz-raw': {
           options: {
             swarmProviderUrl: 'http://localhost:8500',
+            timeoutRead: 500,
           },
           create: (options) => {
             return new SwarmAdapter(options);

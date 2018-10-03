@@ -15,6 +15,7 @@ module.exports = {
         'bzz-raw': {
           options: {
             swarmProviderUrl: 'https://swarm.windingtree.com/',
+            timeoutRead: 1000,
           },
           create: (options) => {
             return new SwarmAdapter(options);

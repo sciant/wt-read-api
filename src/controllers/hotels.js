@@ -86,15 +86,18 @@ const resolveHotelObject = async (hotel, fields) => {
         ...(flattenObject(plainHotel, fields)),
         id: hotel.address,
       };
-      if (flattenedOffChainData.notificationsUri) {
-        hotelData.notificationsUri = flattenedOffChainData.notificationsUri;
-      }
-      if (flattenedOffChainData.ratePlansUri) {
-        hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
-      }
-      if (flattenedOffChainData.availabilityUri) {
+      // Some fields need special treatment
+      const fieldModifiers = {
+        'notificationsUri': (data, source, key) => { data[key] = source[key]; return data; },
+        'bookingUri': (data, source, key) => { data[key] = source[key]; return data; },
+        'ratePlansUri': (data, source, key) => { data.ratePlans = source[key]; return data; },
         // We intentionally move the data one level up
-        hotelData.availability = flattenedOffChainData.availabilityUri.latestSnapshot;
+        'availabilityUri': (data, source, key) => { data.availability = source[key].latestSnapshot; return data; },
+      };
+      for (let fieldModifier in fieldModifiers) {
+        if (flattenedOffChainData[fieldModifier] !== undefined) {
+          hotelData = fieldModifiers[fieldModifier](hotelData, flattenedOffChainData, fieldModifier);
+        }
       }
     } else {
       hotelData = {
@@ -133,15 +136,12 @@ const calculateFields = (fieldsQuery) => {
       if (DESCRIPTION_FIELDS.indexOf(firstPart) > -1) {
         return `descriptionUri.${f}`;
       }
-
-      if (firstPart === 'ratePlansUri') {
-        return f;
-      }
-
-      if (firstPart === 'availabilityUri') {
-        return f;
-      }
-      if (firstPart === 'notificationsUri') {
+      if ([
+        'ratePlansUri',
+        'availabilityUri',
+        'notificationsUri',
+        'bookingUri',
+      ].indexOf(firstPart) > -1) {
         return f;
       }
 

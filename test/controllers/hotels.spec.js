@@ -191,6 +191,7 @@ describe('Hotels', function () {
         'amenities',
         'updatedAt',
         'notificationsUri',
+        'bookingUri',
       ];
       const query = `fields=${fields.join()}`;
 
@@ -334,7 +335,14 @@ describe('Hotels', function () {
 
     it('should return all fields that a client asks for', async () => {
       // defaultCancellationAmount was problematic when set to 0
-      const fields = ['name', 'location', 'managerAddress', 'defaultCancellationAmount'];
+      const fields = [
+        'name',
+        'location',
+        'managerAddress',
+        'defaultCancellationAmount',
+        'notificationsUri',
+        'bookingUri',
+      ];
       const query = `fields=${fields.join()}`;
 
       await request(server)

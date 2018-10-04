@@ -45,7 +45,7 @@ const flattenObject = (contents, fields) => {
   }
 
   for (let field in currentFieldDef) {
-    if (contents[field]) {
+    if (contents[field] !== undefined) {
       // No specific children selected
       if (!currentFieldDef[field]) {
         // Differentiate between storage pointers and plain objects
@@ -62,7 +62,7 @@ const flattenObject = (contents, fields) => {
       }
     } else if (contents && typeof contents === 'object') { // Mapping object such as roomTypes
       for (let key in contents) {
-        if (contents[key][field]) {
+        if (contents[key][field] !== undefined) {
           if (!result[key]) {
             result[key] = {};
           }

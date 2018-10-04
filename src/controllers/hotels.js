@@ -89,6 +89,9 @@ const resolveHotelObject = async (hotel, fields) => {
       if (flattenedOffChainData.notificationsUri) {
         hotelData.notificationsUri = flattenedOffChainData.notificationsUri;
       }
+      if (flattenedOffChainData.bookingUri) {
+        hotelData.bookingUri = flattenedOffChainData.bookingUri;
+      }
       if (flattenedOffChainData.ratePlansUri) {
         hotelData.ratePlans = flattenedOffChainData.ratePlansUri;
       }
@@ -137,11 +140,13 @@ const calculateFields = (fieldsQuery) => {
       if (firstPart === 'ratePlansUri') {
         return f;
       }
-
       if (firstPart === 'availabilityUri') {
         return f;
       }
       if (firstPart === 'notificationsUri') {
+        return f;
+      }
+      if (firstPart === 'bookingUri') {
         return f;
       }
 

@@ -16,6 +16,9 @@ const {
   mapHotelFieldsFromQuery,
 } = require('../services/property-mapping');
 const {
+  DEFAULT_PAGE_SIZE,
+} = require('../constants');
+const {
   paginate,
   LimitValidationError,
   MissingStartWithError,
@@ -154,7 +157,7 @@ const calculateFields = (fieldsQuery) => {
 };
 
 const fillHotelList = async (path, fields, hotels, limit, startWith) => {
-  limit = limit ? parseInt(limit, 10) : undefined;
+  limit = limit ? parseInt(limit, 10) : DEFAULT_PAGE_SIZE;
   let { items, nextStart } = paginate(hotels, limit, startWith, 'address');
   let rawHotels = [];
   for (let hotel of items) {

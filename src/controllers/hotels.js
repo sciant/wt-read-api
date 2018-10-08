@@ -78,18 +78,17 @@ const flattenObject = (contents, fields) => {
   return result;
 };
 
-const resolveHotelObject = async (hotel, fields) => {
-  let hotelData;
+const resolveHotelObject = async (hotel, offChainFields, onChainFields) => {
+  let hotelData = {};
   try {
-    if (fields.length) {
-      const plainHotel = await hotel.toPlainObject(fields);
-      const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, fields);
+    if (offChainFields.length) {
+      const plainHotel = await hotel.toPlainObject(offChainFields);
+      const flattenedOffChainData = flattenObject(plainHotel.dataUri.contents, offChainFields);
       hotelData = {
         ...flattenedOffChainData.descriptionUri,
-        ...(flattenObject(plainHotel, fields)),
-        id: hotel.address,
+        ...(flattenObject(plainHotel, offChainFields)),
       };
-      // Some fields need special treatment
+      // Some offChainFields need special treatment
       const fieldModifiers = {
         'notificationsUri': (data, source, key) => { data[key] = source[key]; return data; },
         'bookingUri': (data, source, key) => { data[key] = source[key]; return data; },
@@ -102,11 +101,14 @@ const resolveHotelObject = async (hotel, fields) => {
           hotelData = fieldModifiers[fieldModifier](hotelData, flattenedOffChainData, fieldModifier);
         }
       }
-    } else {
-      hotelData = {
-        id: hotel.address,
-      };
     }
+    for (let i = 0; i < onChainFields.length; i += 1) {
+      if (hotel[onChainFields[i]]) {
+        hotelData[onChainFields[i]] = await hotel[onChainFields[i]];
+      }
+    }
+    // Always append hotel chain address as id property
+    hotelData.id = hotel.address;
   } catch (e) {
     let message = 'Cannot get hotel data';
     if (e instanceof wtJsLibs.errors.RemoteDataReadError) {
@@ -131,6 +133,12 @@ const calculateFields = (fieldsQuery) => {
   const mappedFields = mapHotelFieldsFromQuery(fieldsArray);
   return {
     mapped: mappedFields,
+    onChain: mappedFields.map((f) => {
+      if (HOTEL_FIELDS.indexOf(f) > -1) {
+        return f;
+      }
+      return null;
+    }).filter((f) => !!f),
     toFlatten: mappedFields.map((f) => {
       let firstPart = f;
       if (f.indexOf('.') > -1) {
@@ -147,10 +155,6 @@ const calculateFields = (fieldsQuery) => {
       ].indexOf(firstPart) > -1) {
         return f;
       }
-
-      if (HOTEL_FIELDS.indexOf(firstPart) > -1) {
-        return f;
-      }
       return null;
     }).filter((f) => !!f),
   };
@@ -161,7 +165,7 @@ const fillHotelList = async (path, fields, hotels, limit, startWith) => {
   let { items, nextStart } = paginate(hotels, limit, startWith, 'address');
   let rawHotels = [];
   for (let hotel of items) {
-    rawHotels.push(resolveHotelObject(hotel, fields.toFlatten));
+    rawHotels.push(resolveHotelObject(hotel, fields.toFlatten, fields.onChain));
   }
   const resolvedItems = await Promise.all(rawHotels);
   let realItems = resolvedItems.filter((i) => !i.error);
@@ -210,7 +214,8 @@ const findAll = async (req, res, next) => {
 const find = async (req, res, next) => {
   try {
     const fieldsQuery = req.query.fields || DEFAULT_HOTEL_FIELDS;
-    const resolvedHotel = await resolveHotelObject(res.locals.wt.hotel, calculateFields(fieldsQuery).toFlatten);
+    const fields = calculateFields(fieldsQuery);
+    const resolvedHotel = await resolveHotelObject(res.locals.wt.hotel, fields.toFlatten, fields.onChain);
     if (resolvedHotel.error) {
       return next(new HttpBadGatewayError('hotelNotAccessible', resolvedHotel.error, 'Hotel data is not accessible.'));
     }

@@ -1,6 +1,6 @@
 {
   "name": "wt-read-api",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": " API to interact with the Winding Tree platform",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "start": "node ./src/index.js",
     "dev": "WT_CONFIG=dev npm start",
-    "deploy-demo": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
-    "deploy-playground": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
+    "deploy-demo": "now --regions bru -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
+    "deploy-playground": "now --regions bru -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
     "alias-demo": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-demo.json",
     "alias-playground": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-playground.json",
     "dev-net": "./scripts/dev-net.sh"

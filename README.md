@@ -3,7 +3,7 @@
 API written in nodejs to fetch information from the Winding Tree platform.
 
 ## Requirements
-- Nodejs >=10.7.0
+- Nodejs >=10
 
 ### Getting stared
 In order to install and run tests, we must:

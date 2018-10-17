@@ -9,11 +9,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "start": "node ./src/index.js",
     "dev": "WT_CONFIG=dev npm start",
-    "deploy-demo": "now --regions bru -e NODE_ENV=production -e INFURA_API_KEY --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
-    "deploy-playground": "now --regions bru -e NODE_ENV=production -e INFURA_API_KEY --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
     "deploy-aws-playground": "./scripts/deploy-aws.sh playground",
-    "alias-demo": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-demo.json",
-    "alias-playground": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-playground.json",
+    "deploy-aws-demo": "./scripts/deploy-aws.sh demo",
     "dev-net": "./scripts/dev-net.sh"
   },
   "repository": {

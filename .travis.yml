@@ -12,20 +12,6 @@ jobs:
     - npm run lint
     - npm test
     - npm run coverage
-  - stage: deploy
-    install: true
-    if: branch = release/demo
-    script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-demo && npm run alias-demo
-  - stage: deploy
-    install: true
-    if: branch = release/playground
-    script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-playground && npm run alias-playground
   - stage: Build docker image and upload to AWS
     sudo: true
     services:
@@ -42,14 +28,21 @@ jobs:
   - stage: Start service from docker with latest merged tag
     install: true
     sudo: true
-    if: branch = release/aws
+    if: branch = release/playground
     script:
     - pip install --user awscli
     - export PATH=$PATH:$HOME/.local/bin
     - npm run deploy-aws-playground
+  - stage: Start service from docker with latest merged tag
+    install: true
+    sudo: true
+    if: branch = release/demo
+    script:
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - npm run deploy-aws-demo
 env:
   global:
-  - secure: eQMrwJ4qlU76kI/a9cOoUYZZrDqL9PQ3BpbzQFDBnuPmcRYeMohaQo/JEv3lw3yrIHgNMEXvpwEUbjG0DoumuM7g8kVQCQ2rZZjvVspnTX+xWiF3YuIyb4fQGJL2g6YQDYjSlnYH+e4p3TrrjmQBHLc0VdFe04hkUcp4zCxYdKjFDRUpl2guqJWPMrCv3muh31jgnqlOCnTAI6GCcNAeuIXdfknNQRHdQ2z1YKH3Z24QS9TOiG+fTtlgKeKfOgs7Q3mnPlwcFUjAbpQn5jib490iMT1kQdPE09Jl1bUI2wdejXGTBHwEyr/zMm6I+ZYFld6FILKwadao+KwZRu8Ks/e5LIqM17KHhe2j5eALkEQwl91dUhdQm5aH6eKfUOA8yEfoYZhRjJiMK4QXb6mPDp1LdruErMe0qu+Y7JHPAb2km8HPpLDsOZglD9l+HPJpJ4iOCAgzr+AgawFStzZWEhWD+dlS3nhoFzJOldCVeaV2Bug3Jlr6Jl57i6QKOxKGck/v4Mep3871cfxbhik89YcR3c5YKcBrb3fx88dgjdP5kHzhL6TXgirL9ffBt6wFaZo8Qxlti6+jd+a8r6Lkop0Te899LVR5R7dF2TrkmqMwBtgd7fDaazODlN5bQoFefGyihIUIwQQ2yVjETPeIUdKGhiLM9hbUlCQoPQ/lkEM=
   - secure: ZuGWaKHwqK+kgX6xWzQ9GiiMvE0w3lbbQI2gQT8cJpwOvRzFlzc0UoGbCPEUOiaCboBhmjeaonmB+3oibvu7lwejPijBeqLZ6/yQ7JSmNxNs6j5pM56AYaeEfeQYVDjI08vLBcVh4ZWq/wOix8aXWA4d69wSdDYoYv+GcKPi99ZK6tfDxWMwHaDbCJC6JZrBjMDShFTQnuKqHwIcuTBiA+n8KDtGLS3TvT8GdIDLOrk7W6wsO+Pw8ViBZx6nXGEOlHCV4pJE8jFmqNzyGoco4wutenyoTh3nIkTgpFnL2T1q1gIQ9t99Sz4JENvIXYp0rR0MLLXJ7ZYNioF9DX0LK34SAkOq/XXvri4H0L1AnoxB12uGNGyVlI08jk2k4pT9oqZ+aaegtLaGR1j9h9hKltUcORbsQ+OXdEycGEtrsHM58YKAcrWYnDtkHBD5QfPtj29JlMBwwKUpPVz+MQqCSdGSoMN1BDDDxaltr7rsiA4320rxMaBoWDCN0I2nolSuf1NHx9xzj6sdhkEfBzIMxmoRkcA9G2XqLr5bu6ET80CSPjaax2CPyiSSZGLtLlnmeeMzcwoevMLMM4XWNV78J3+pgtqykoaRYBN4PI9fBFrRxmNzv1vfQh05cZ3lAmhABYispuF02VOBzDUQhwHaY+SJXbZDHT3U+TFMIG5IZC8=
   - secure: hINTP0maD3IhgnkrHmkXQEffU2kujBkaTbyHYRvYJWiAdOrKbFS+Rmgz7ZixjxHvB4zCkJkuHLRdiYcCKg1FXwFmqG7Qml5bSZYLWVt0J9n8pWGfy2UqJ5+wRkxAqtChc6LJNH/yqteM+amuTZt1Skt+ByS7l2vG4T5CjsNMJ2MTqx+gtPuGbexyurLEROWojf6HtIYT9ijodHVJQ+RReTkNgnTP/ZQGlo2Z81/lhb8BpPtAE/Bl6X7xLU8u+Z3tg847HJgWLd0XRsk9VDf9e7lr5b/J56SwGCE2NBp9btBSdakDdacl+RQ3C5DvifFd28EqVp4d7A4f6cIo/IXxL2l+5HcXF+AqfR/OL0TTCqWlAEp8auOl3oouytKtNQqHeH3xecUP6OeOyCN5dHkKvAVf5uHULe4c3/o/HQaPLYDiWFini+13e59bBP+19tIG9gESlNnoKUk27UQUwBVizeKUHHMmxXFjnsHFp387+nyNEpjPcArcvVc3YrsMZ62CCOvvNFnm8gv1b6815IcLeVYzju++iC8tf+RGX6MUe0P/1Mo/9ATjahipNOYNScX0tG1/BA610VQVzLKLjXxlXdMS4SaY9nE6IThKXOOJnmk/WFNlMJbRfq1CcKbdWFtGjwxb1fT+Yqn5S8dj3BZBna4utWIxLflCFq1LzEK02Oc=
   - secure: ZT3gTqyQQsZHFvuBTyLD3QQLAD41zCEQ7zVXrazcooj/NZ6Pvt4zyK4gFKzFYFZNZ/cCix/YIQRiZt8kIHpxUbeahyAVoov+x/Q/T0B5Ug8jZHLtJBH73T1fqwyhQt4kDkfDROrg+9XztheF+GWAXxXn+hHPR+VEVF8+Cba/SdNVoL4rP2wuP9E0/Re7+ay7OFurVPk2kRoQ7KVqgdFsr+zE9xs92Ye71TFacKPRUnlxue5cmM/UoEFD3Yecq+sMIHVGmrCfwPgdfvcFRB6nQKGG34/Dyl0xl0YFhyx3DqNBlaeYGYHjOUhZORk2Q9dpgK5cvw/ZL/dwxC+mlipQSZVCOIxc9YUYbSaRWF31iqq7UzYXRr6S/7nn6m276r/sQv8AMwuIBCvtZP9+EXd8R/2OqbRvqp4VBUbHyv+xO6lUhY2IIe8omzmAzy9E3PjyQkBKCLJPdIGrhKEZ/zT4x1BDO/kddz7NEWyxXhWbKh4bj2vCXRYX0SLATf1Bs5g10lOM2mChOqwahR2/+H03FSqSLgzqEHmbanX3yz8dfF3bwZ0mGWaVMQZk3wI345CKLeZY+HuJVXn0BL9VEhZdoHOn6/86va2hTvBXEflrIyEjbVO1gVEPwSI++WbhuUJo4CS9ND0lE6owZEq3XN/9rYw31e/8a4zWSWz6eO5POQA=

@@ -338,7 +338,7 @@ paths:
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
       responses:
         '200':
           description: Availability data for the hotel
@@ -356,7 +356,7 @@ paths:
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
       responses:
         '200':
           description: Rate plans for the hotel
@@ -374,7 +374,7 @@ paths:
           required: true
           description: Hotel Id as returned by `GET /hotel`
           schema:
-            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'        
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
         - name: ratePlanId
           in: path
           required: true
@@ -436,9 +436,9 @@ components:
           - id
           properties:
             id:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
             managerAddress:
-              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'    
+              $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
             roomTypes:
               description: Room types in the hotel
               $ref: '#/components/schemas/RoomTypesResponse'
@@ -446,7 +446,11 @@ components:
       allOf:
       - $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/HotelDescription'
       - type: object
+        required:
+          - id
         properties:
+          id:
+            $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/EthereumAddressType'
           ratePlans:
             $ref: 'https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/RatePlans'
           availability: 

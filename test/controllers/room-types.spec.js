@@ -6,7 +6,7 @@ const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
 const {
   deployIndex,
   deployFullHotel,
-} = require('../../scripts/local-network');
+} = require('../../management/local-network');
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,

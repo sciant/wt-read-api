@@ -2,7 +2,7 @@ const WtJsLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const HttpAdapter = require('@windingtree/off-chain-adapter-http');
-const { deployIndex, deployFullHotel } = require('../../scripts/local-network');
+const { deployIndex, deployFullHotel } = require('../../management/local-network');
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,

@@ -1,19 +1,17 @@
 {
   "name": "wt-read-api",
-  "version": "0.5.1",
+  "version": "0.6.1",
   "description": " API to interact with the Winding Tree platform",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src test",
-    "test": "rimraf .nyc_output && NODE_ENV=test WT_CONFIG=test ./test/utils/scripts/localtestnet.sh",
+    "test": "rimraf .nyc_output && NODE_ENV=test WT_CONFIG=test ./test/utils/management/localtestnet.sh",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "start": "node ./src/index.js",
     "dev": "WT_CONFIG=dev npm start",
-    "deploy-demo": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
-    "deploy-playground": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
-    "alias-demo": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-demo.json",
-    "alias-playground": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-playground.json",
-    "dev-net": "./scripts/dev-net.sh"
+    "deploy-aws-playground": "./management/deploy-aws.sh playground",
+    "deploy-aws-demo": "./management/deploy-aws.sh demo",
+    "dev-net": "./management/dev-net.sh"
   },
   "repository": {
     "type": "git",
@@ -64,7 +62,7 @@
     "web3": "^1.0.0-beta.35"
   },
   "engines": {
-    "node": ">=10.7.0"
+    "node": ">=10.0.0"
   },
   "nyc": {
     "exclude": [

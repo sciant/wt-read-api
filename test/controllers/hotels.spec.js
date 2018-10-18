@@ -7,12 +7,15 @@ const wtJsLibsWrapper = require('../../src/services/wt-js-libs');
 const {
   deployIndex,
   deployFullHotel,
-} = require('../../scripts/local-network');
+} = require('../../management/local-network');
 const {
   HOTEL_DESCRIPTION,
   RATE_PLANS,
   AVAILABILITY,
 } = require('../utils/test-data');
+const {
+  DEFAULT_PAGE_SIZE,
+} = require('../../src/constants');
 const {
   FakeNiceHotel,
   FakeHotelWithBadOnChainData,
@@ -191,6 +194,7 @@ describe('Hotels', function () {
         'amenities',
         'updatedAt',
         'notificationsUri',
+        'bookingUri',
       ];
       const query = `fields=${fields.join()}`;
 
@@ -243,6 +247,30 @@ describe('Hotels', function () {
             expect(hotel).to.have.property('name');
             expect(hotel).to.have.property('location');
           });
+        });
+    });
+
+    it('should properly transfer limit even if not in querystring', async () => {
+      const nextNiceHotel = new FakeNiceHotel();
+      sinon.stub(wtJsLibsWrapper, 'getWTIndex').resolves({
+        getAllHotels: sinon.stub().resolves([
+          new FakeHotelWithBadOnChainData(),
+          new FakeHotelWithBadOnChainData(),
+        ].concat([...Array(30).keys()].map(() => new FakeNiceHotel()))
+          .concat([nextNiceHotel])
+        ),
+      });
+      await request(server)
+        .get('/hotels')
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items, errors, next } = res.body;
+          expect(items.length).to.be.eql(30);
+          expect(errors.length).to.be.eql(2);
+          expect(next).to.be.equal(`http://example.com/hotels?limit=${DEFAULT_PAGE_SIZE}&fields=id,location,name&startWith=${nextNiceHotel.address}`);
+          wtJsLibsWrapper.getWTIndex.restore();
         });
     });
 
@@ -334,7 +362,14 @@ describe('Hotels', function () {
 
     it('should return all fields that a client asks for', async () => {
       // defaultCancellationAmount was problematic when set to 0
-      const fields = ['name', 'location', 'managerAddress', 'defaultCancellationAmount'];
+      const fields = [
+        'name',
+        'location',
+        'managerAddress',
+        'defaultCancellationAmount',
+        'notificationsUri',
+        'bookingUri',
+      ];
       const query = `fields=${fields.join()}`;
 
       await request(server)

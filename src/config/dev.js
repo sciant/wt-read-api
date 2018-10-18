@@ -2,7 +2,12 @@ const WtJsLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const HttpAdapter = require('@windingtree/off-chain-adapter-http');
-const { deployIndex } = require('../../scripts/local-network');
+const { deployIndex, deployFullHotel } = require('../../management/local-network');
+const {
+  HOTEL_DESCRIPTION,
+  RATE_PLANS,
+  AVAILABILITY,
+} = require('../../test/utils/test-data');
 
 const winston = require('winston');
 
@@ -39,8 +44,12 @@ module.exports = {
     },
   }),
   networkSetup: async (currentConfig) => {
-    currentConfig.wtIndexAddress = (await deployIndex()).address;
+    const indexContract = await deployIndex();
+    currentConfig.wtIndexAddress = indexContract.address;
     currentConfig.logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
+
+    const hotelAddress = await deployFullHotel(await currentConfig.wtLibs.getOffChainDataClient('in-memory'), indexContract, HOTEL_DESCRIPTION, RATE_PLANS, AVAILABILITY);
+    currentConfig.logger.info(`Example hotel deployed to ${hotelAddress}`);
   },
   logger: winston.createLogger({
     level: 'debug',

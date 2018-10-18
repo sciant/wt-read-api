@@ -1,7 +1,0 @@
-{
-  "name": "demo-wt-read-api",
-  "alias": "demo-api.windingtree.com",
-  "env": {
-    "WT_CONFIG": "demo"
-  }
-}

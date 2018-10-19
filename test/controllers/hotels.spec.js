@@ -213,6 +213,22 @@ describe('Hotels', function () {
             }
           });
         });
+      const query2 = (fields.map((f) => `fields=${f}`)).join('&');
+      await request(server)
+        .get(`/hotels?${query2}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect(200)
+        .expect((res) => {
+          const { items } = res.body;
+          expect(items.length).to.be.eql(2);
+          items.forEach(hotel => {
+            expect(hotel).to.have.all.keys(fields);
+            for (let roomType in hotel.roomTypes) {
+              expect(hotel.roomTypes[roomType]).to.have.property('id');
+            }
+          });
+        });
     });
 
     it('should apply limit', async () => {
@@ -374,6 +390,15 @@ describe('Hotels', function () {
 
       await request(server)
         .get(`/hotels/${address}?${query}`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.all.keys([...fields, 'id']);
+        })
+        .expect(200);
+      const query2 = (fields.map((f) => `fields=${f}`)).join('&');
+      await request(server)
+        .get(`/hotels/${address}?${query2}`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {

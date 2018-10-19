@@ -129,7 +129,7 @@ const resolveHotelObject = async (hotel, offChainFields, onChainFields) => {
 };
 
 const calculateFields = (fieldsQuery) => {
-  const fieldsArray = fieldsQuery.split(',');
+  const fieldsArray = Array.isArray(fieldsQuery) ? fieldsQuery : fieldsQuery.split(',');
   const mappedFields = mapHotelFieldsFromQuery(fieldsArray);
   return {
     mapped: mappedFields,

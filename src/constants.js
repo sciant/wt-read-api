@@ -1,5 +1,20 @@
-const DEFAULT_HOTEL_FIELDS = 'id,location,name,description,contacts,address,currency,images,amenities,updatedAt';
-const DEFAULT_HOTELS_FIELDS = 'id,location,name';
+const DEFAULT_HOTEL_FIELDS = [
+  'id',
+  'location',
+  'name',
+  'description',
+  'contacts',
+  'address',
+  'currency',
+  'images',
+  'amenities',
+  'updatedAt',
+];
+const DEFAULT_HOTELS_FIELDS = [
+  'id',
+  'location',
+  'name',
+];
 
 const HOTEL_FIELDS = [
   'manager',

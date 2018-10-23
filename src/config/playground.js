@@ -6,6 +6,7 @@ module.exports = {
   wtIndexAddress: '0x3b476ac17ffea8dcf2dbd5ef787a5baeeebe9984',
   port: 3000,
   baseUrl: process.env.BASE_URL || 'https://playground-api.windingtree.com',
+  ethNetwork: 'ropsten',
   wtLibs: WtJsLibs.createInstance({
     dataModelOptions: {
       provider: 'https://ropsten.infura.io/' + process.env.INFURA_API_KEY,

@@ -76,6 +76,33 @@ describe('Room types', function () {
         });
     });
 
+    it('should include ratePlans and availability if fields is present', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes?fields=ratePlans,availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.eql(HOTEL_DESCRIPTION.roomTypes);
+          for (let roomType in res.body) {
+            expect(res.body[roomType]).to.have.property('id');
+            expect(res.body[roomType]).to.have.property('availability');
+            expect(res.body[roomType]).to.have.property('ratePlans');
+          }
+        });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes?fields=ratePlans&fields=availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.eql(HOTEL_DESCRIPTION.roomTypes);
+          for (let roomType in res.body) {
+            expect(res.body[roomType]).to.have.property('id');
+            expect(res.body[roomType]).to.have.property('availability');
+            expect(res.body[roomType]).to.have.property('ratePlans');
+          }
+        });
+    });
+
     it('should return 404 for non existing hotel', async () => {
       await request(server)
         .get('/hotels/0x0Fd60495d705F4Fb86e1b36Be396757689FbE8B3/roomTypes/room-type-0000')
@@ -113,6 +140,27 @@ describe('Room types', function () {
     it('should include ratePlans if fields is present', async () => {
       await request(server)
         .get(`/hotels/${address}/roomTypes/room-type-1111?fields=ratePlans`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('ratePlans');
+          expect(Object.values(res.body.ratePlans).length).to.be.eql(1);
+        });
+    });
+
+    it('should include ratePlans and availability if fields is present', async () => {
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111?fields=ratePlans,availability`)
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .expect((res) => {
+          expect(res.body).to.have.property('id', 'room-type-1111');
+          expect(res.body).to.have.property('ratePlans');
+          expect(Object.values(res.body.ratePlans).length).to.be.eql(1);
+        });
+      await request(server)
+        .get(`/hotels/${address}/roomTypes/room-type-1111?fields=ratePlans&fields=availability`)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .expect((res) => {

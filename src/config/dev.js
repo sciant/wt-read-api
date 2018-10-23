@@ -15,6 +15,7 @@ module.exports = {
   port: 3000,
   baseUrl: 'http://localhost:3000',
   wtIndexAddress: 'will-be-set-during-init',
+  ethNetwork: 'local',
   wtLibs: WtJsLibs.createInstance({
     dataModelOptions: {
       provider: 'http://localhost:8545',

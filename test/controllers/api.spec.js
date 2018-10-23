@@ -22,6 +22,7 @@ describe('API', function () {
         expect(res.body).to.have.property('version');
         expect(res.body).to.have.property('config', process.env.WT_CONFIG);
         expect(res.body).to.have.property('wtIndexAddress', config.wtIndexAddress);
+        expect(res.body).to.have.property('ethNetwork', config.ethNetwork);
       })
       .expect(200);
   });

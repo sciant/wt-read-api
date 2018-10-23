@@ -49,6 +49,7 @@ app.get('/', (req, res) => {
     version,
     config: process.env.WT_CONFIG,
     wtIndexAddress: config.wtIndexAddress,
+    ethNetwork: config.ethNetwork,
   };
   res.status(200).json(response);
 });

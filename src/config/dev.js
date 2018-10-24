@@ -29,7 +29,7 @@ module.exports = {
         },
         'bzz-raw': {
           options: {
-            swarmProviderUrl: 'http://localhost:8500',
+            swarmProviderUrl: 'https://swarm-gateways.net/',
             timeoutRead: 500,
           },
           create: (options) => {

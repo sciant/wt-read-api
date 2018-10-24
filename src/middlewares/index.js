@@ -56,7 +56,7 @@ const handleDataFetchingErrors = (err, req, res, next) => {
   if (err instanceof WTLibs.errors.StoragePointerError) {
     return next(new HttpBadGatewayError('hotelNotAccessible', err.message, 'Cannot access off-chain data'));
   }
-  
+
   next(err);
 };
 
